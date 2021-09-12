@@ -155,10 +155,6 @@ class Creator
             if (!($this->textColor instanceof Text)) {
                 $picker = Picker::createFromController($ctrl);
                 $picker->setTextSize($size->size(), $freeTextFit);
-                echo "=================" . PHP_EOL;
-                print_r(['width' => $width, 'height' => $height]);
-                print_r($size->size()->toArray());
-                print_r($freeTextFit->toArray());
                 $textColor = $picker->createColor();
                 unset($picker);
             } else {
