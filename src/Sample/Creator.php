@@ -86,6 +86,7 @@ class Creator
         } else {
             $this->textColor = new Color($r, $g, $b, $a);
         }
+
         return $this;
     }
 
@@ -152,11 +153,10 @@ class Creator
             $size = $rbox->create();
             $freeTextFit = $size->fit($width, $height)->center();
 
-            if (!($this->textColor instanceof Text)) {
+            if (!($this->textColor instanceof Color)) {
                 $picker = Picker::createFromController($ctrl);
                 $picker->setTextSize($size->size(), $freeTextFit);
                 $textColor = $picker->createColor();
-                unset($picker);
             } else {
                 $textColor = $this->textColor;
             }
