@@ -50,6 +50,10 @@ class SearchFileIterator extends RecursiveIteratorIterator
             return false;
         }
 
+        if ($this->keyword === null) {
+            return true;
+        }
+
         if (true === (bool) preg_match($this->keyword, $file->getFilename(), $match)) {
             return true;
         }
