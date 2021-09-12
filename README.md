@@ -71,4 +71,4 @@ $creator->save('sample03.jpg');
 ```
 ### 結果
 
-![sample03](https://user-images.githubusercontent.com/625393/132984583-79f23a05-e0db-4c3f-9158-48697bf750f7.jpg)
+![sample03](https://user-images.githubusercontent.com/625393/132984657-43e7faaa-3458-4098-b066-c35d7d4c4311.jpg)
