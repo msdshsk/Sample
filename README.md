@@ -72,3 +72,69 @@ $creator->save('sample03.jpg');
 ### 結果
 
 ![sample03](https://user-images.githubusercontent.com/625393/132984657-43e7faaa-3458-4098-b066-c35d7d4c4311.jpg)
+
+### 3. なんかもう色々やる
+
+```php
+use Sample\Creator;
+use Sample\Image\Text;
+use Sample\Image\Controller\Config\Resize as ResizeConfig;
+use Sample\FileSystem\Directory;
+use Sample\Color\Picker as ColorPicker;
+use Sample\Coordinate\Calculator;
+use Sample\Property\Size;
+use Sample\Color\RGB as Color;
+
+// ディレクトリを読み込む
+$srcDir = new Directory('src_images');
+
+// 保存フォルダ
+$saveDir = new Directory('images');
+
+$i = 1;
+// ディレクトリ内のファイルを全てサンプル画像にする
+foreach ($srcDir->searchFiles('/\.(?:png|jpg|webp)/i') as $filePath) {
+    $line = sprintf('サンプル画像 %03s', $i);
+    $text = new Text($line, 72, 'C:/Windows/Fonts/Mplus2-Medium.otf', 10);
+    $creator = Creator::createFromImg($filePath)
+        ->setText($text)
+        ->before(function ($ctrl) use ($filePath) {
+            // 既存画像のサイズを取得
+            $size = $ctrl->size();
+            // 幅、高さの小さい方のサイズを取得
+            $s = $size->min();
+            // サイズを決定する
+            $trimSize = new Size($s, $s);
+            
+            // 画像の真ん中を切り取る
+            $calc = new Calculator($size, $trimSize);
+            $trimmed = $ctrl->trimming($trimSize, $calc->center());
+            // さらに画像をリサイズしてすべての画像が同じ大きさになるようにする
+            $resized = $trimmed->resize(new ResizeConfig(['size' => new Size(200, 200)]));
+
+            unset($ctrl);
+            unset($trimmed);
+
+            // 画像に方眼を書き込む
+            $resized->drawGrid(50, new Color(200, 200, 200));
+            // 画像に枠線を書き込む
+            $resized->drawOutline(2, new Color(255, 0, 0));
+
+            return $resized;
+        })
+        // 画像サイズテキスト（左上に表示される）を調整
+        ->setImageSizeTextPosition(10, 10)
+        // 処理を実行
+        ->execute()
+        // 画像を保存する
+        ->save($saveDir->path(sprintf('image_%03s.png', $i)))
+    ;
+    // 作成完了したので破棄する
+    $creator->destroy();
+    $i++;
+}
+```
+
+### 結果
+
+自分の目でたしかめてくれよな！
