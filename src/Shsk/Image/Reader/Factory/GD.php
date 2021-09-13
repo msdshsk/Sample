@@ -6,8 +6,11 @@ use Shsk\Image\Reader\Type\GD\Gif;
 use Shsk\Image\Reader\Type\GD\Jpg;
 use Shsk\Image\Reader\Type\GD\Png;
 use Shsk\Image\Reader\Type\GD\Webp;
+use Shsk\Image\Reader\Factory;
+use Shsk\Image\Reader\Type;
+use Shsk\Exception\Exception;
 
-class GD implements \Sample\Image\Reader\Factory
+class GD implements Factory
 {
     const TYPES = [
         'jpg' => Jpg::class,
@@ -24,11 +27,11 @@ class GD implements \Sample\Image\Reader\Factory
         $this->extension = $extension;
     }
 
-    public function create(): \Sample\Image\Reader\Type
+    public function create(): Type
     {
         $ext = strtolower($this->extension);
         if (!isset(self::TYPES[$ext])) {
-            throw new \Sample\Exception\Exception("unread extension. {$ext}");
+            throw new Exception("unread extension. {$ext}");
         }
 
         $class = self::TYPES[$ext];

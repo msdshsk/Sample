@@ -2,7 +2,9 @@
 
 namespace Shsk\Exception;
 
-class FunctionException extends \ErrorException implements \Sample\Exception
+use Shsk\Exception as ExceptionInterface;
+
+class FunctionException extends \ErrorException implements ExceptionInterface
 {
     private static $backupLevel;
 

@@ -4,8 +4,9 @@ namespace Shsk\Image;
 
 use Shsk\Color\RGB as Color;
 use Shsk\BoundingBox\Font;
+use Shsk\Property\ReadOnly;
 
-class Text extends \Sample\Property\ReadOnly
+class Text extends ReadOnly
 {
     public function __construct($text, $fontSize, $fontPath, $angle = 0)
     {

@@ -2,7 +2,7 @@
 
 namespace Shsk\Image\Text;
 
-use \Sample\Property\Coordinate;
+use Shsk\Property\Coordinate;
 use Shsk\Coordinate\Calculator;
 use Shsk\Property\Size as ScreenSize;
 use Shsk\Image\Text\Size as TargetSize;
