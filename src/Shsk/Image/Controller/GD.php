@@ -10,9 +10,11 @@ use Shsk\Image\Controller\Traits\GD\Resize;
 use Shsk\Image\Controller\Traits\GD\Trimming;
 use Shsk\Image\Controller\Traits\GD\Grid;
 use Shsk\Image\Controller\Traits\GD\Outline;
+use Shsk\Image\Controller as ControllerInterface;
+use Shsk\Image\Writer\Type;
 use Shsk\Property\Size;
 
-class GD implements \Sample\Image\Controller
+class GD implements ControllerInterface
 {
     use Resize;
     use Trimming;
@@ -76,7 +78,7 @@ class GD implements \Sample\Image\Controller
         return Color::createFromIndex($index);
     }
 
-    public function createWriter($filePath): \Sample\Image\Writer\Type
+    public function createWriter($filePath): Type
     {
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
         $factory = new WriterFactory($ext, $this->im);

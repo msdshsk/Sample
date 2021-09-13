@@ -2,7 +2,9 @@
 
 namespace Shsk\Color;
 
-class RGB extends \Sample\Property\ReadOnly
+use Shsk\Property\ReadOnly;
+
+class RGB extends ReadOnly
 {
     public function __construct(int $r, int $g, int $b, int $alpha = 0)
     {

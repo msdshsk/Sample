@@ -2,6 +2,8 @@
 
 namespace Shsk\Exception;
 
-class Exception implements \Sample\Exception
+use Shsk\Exception as ExceptionInterface;
+
+class Exception implements ExceptionInterface
 {
 }

@@ -6,9 +6,11 @@ use Shsk\Image\Writer\Type\GD\Gif;
 use Shsk\Image\Writer\Type\GD\Jpg;
 use Shsk\Image\Writer\Type\GD\Png;
 use Shsk\Image\Writer\Type\GD\Webp;
+use Shsk\Image\Writer\Type;
+use Shsk\Image\Writer\Factory;
 use Shsk\Exception\Exception;
 
-class GD implements \Sample\Image\Writer\Factory
+class GD implements Factory
 {
     const TYPES = [
         'jpg' => Jpg::class,
@@ -28,7 +30,7 @@ class GD implements \Sample\Image\Writer\Factory
         $this->options = $options;
     }
 
-    public function create(): \Sample\Image\Writer\Type
+    public function create(): Type
     {
         $ext = strtolower($this->extension);
 

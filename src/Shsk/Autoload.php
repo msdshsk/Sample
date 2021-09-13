@@ -13,7 +13,7 @@ class Autoload
     public static function include($class)
     {
         if (strpos($class, 'Shsk\\') === 0) {
-            $class = substr($class, 7);
+            $class = substr($class, 5);
             require_once self::ROOT . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
         }
     }

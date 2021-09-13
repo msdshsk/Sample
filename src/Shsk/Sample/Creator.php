@@ -42,7 +42,7 @@ class Creator
         return new self($ctrl, true);
     }
 
-    public static function createFromImg(string $path)
+    public static function createFromImage(string $path)
     {
         $ext = pathinfo($path, PATHINFO_EXTENSION);
         

@@ -2,7 +2,7 @@
 
 namespace Shsk\Image\Writer\Type\GD;
 
-use \Sample\Image\Writer\Type\GD;
+use Shsk\Image\Writer\Type\GD;
 
 class Png extends GD
 {
