@@ -37,14 +37,15 @@ class Resize extends ReadOnly
     {
         $width = $size->width;
         $height = $size->height;
-        $new_width = $this->size->width;
-        $new_height = $this->size->height;
 
         if ($this->parsent !== null) {
             $new_width = $width * $this->parsent;
             $new_height = $height * $this->parsent;
 
             return new Size($new_width, $new_height);
+        } else {
+            $new_width = $this->size->width;
+            $new_height = $this->size->height;
         }
 
         if ($new_width === null) {

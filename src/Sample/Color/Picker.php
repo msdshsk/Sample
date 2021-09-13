@@ -71,10 +71,12 @@ class Picker
         $this->textCoord = new Coordinate($x, $y);
     }
 
-    public function average(Controller $ctrl): Color
+    public function average(Controller $ctrl, $grayScale = true): Color
     {
         $copy = $ctrl->copy();
-        $copy->filter(IMG_FILTER_GRAYSCALE);
+        if ($grayScale === true) {
+            $copy->filter(IMG_FILTER_GRAYSCALE);
+        }
 
         $height = $copy->height();
         $width = $copy->width();
@@ -87,12 +89,17 @@ class Picker
         foreach (range(0, $width - 1) as $x) {
             foreach (range(0, $height -1) as $y) {
                 $rgb = $copy->colorat($x, $y);
-                $total += $rgb->red;
+                $r += $rgb->red;
+                $g += $rgb->green;
+                $b += $rgb->blue;
             }
         }
-        
-        $avgColor = floor($total / $max);
-        $rgb = new Color($avgColor, $avgColor, $avgColor);
+        $rAvg = floor($r / $max);
+        $gAvg = floor($g / $max);
+        $bAvg = floor($b / $max);
+
+        // $avgColor = floor($total / $max);
+        $rgb = new Color($rAvg, $gAvg, $bAvg);
         $copy->destroy();
         return $rgb;
     }
@@ -101,31 +108,38 @@ class Picker
     {
         $ctrl = $this->createSamplingImage();
 
-        $avg = $this->average($ctrl);
-        $pick = ($avg->red + $avg->green + $avg->blue) / 3;
-        
-        //$ajast = 100;
+        $base = $this->average($ctrl);
+        $pick = ($base->red + $base->green + $base->blue) / 3;
+
         if ($pick < self::COLOR_THRESHOLD) {
-            $r = 255;
-            $g = 255;
-            $b = 255;
+            $collection = range($pick + 1, 255);
         } else {
-            $r = 0;
-            $g = 0;
-            $b = 0;
+            $collection = array_reverse(range(0, $pick - 1));
         }
 
-        $clean = array_map(function ($n) {
-            if ($n > 255) {
-                return 255;
+        foreach ($collection as $i) {
+            $target = new Color($i, $i, $i);
+            if ($this->visibility($target, $base)) {
+                break;
             }
-            if ($n < 0) {
-                return 0;
-            }
-            return $n;
-        }, [$r, $g, $b]);
-        
-        return new Color($clean[0], $clean[1], $clean[2]);
+        }
+
+        return $target;
+    }
+
+    public function visibility(Color $target, Color $base)
+    {
+        $baseCalc = new Calculator($base);
+        $targetCalc = new Calculator($target);
+        $targetContrast = $targetCalc->contrast();
+        $colorDiff = $targetCalc->diff($base);
+        $baseContrast = $baseCalc->contrast();
+        $contDiff = abs($baseContrast - $targetContrast);
+        if ($colorDiff >= 500 && $contDiff >= 125) {
+            return true;
+        }
+
+        return false;
     }
 
     protected function loadImage($imagePath): Controller
