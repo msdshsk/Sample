@@ -101,24 +101,24 @@ class Picker
         $copy->destroy();
         return $rgb;
     }
-
+    
     public function createColor(): Color
     {
         $ctrl = $this->createSamplingImage();
 
         $base = $this->average($ctrl, false);
+
         $pick = floor(($base->red + $base->green + $base->blue) / 3);
         if ($pick < self::COLOR_THRESHOLD) {
             $collection = range($pick + 1, 255);
             $up = 1;
         } else {
-            // $collection = array_reverse(range(0, $pick - 1));
             $collection = range(0, $pick - 1);
             $up = -1;
         }
 
         $func = function ($c, $i, $up) {
-            $rtn = ($i * $up);
+            $rtn = $c + ($i * $up);
             $rtn = $rtn < 0 ? 0 : $rtn;
             $rtn = $rtn > 255 ? 255 : $rtn;
 
