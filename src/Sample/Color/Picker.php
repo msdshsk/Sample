@@ -2,14 +2,11 @@
 
 namespace Sample\Color;
 
-use Sample\Property\ReadOnly;
 use Sample\Image\Reader\Factory\GD as ReaderFactory;
 use Sample\Image\Controller\GD as Controller;
-use Sample\Image\Creator\GD\TrueColor as Creator;
 use Sample\Color\RGB as Color;
 use Sample\Property\Size as CommonSize;
 use Sample\Property\Coordinate;
-use Sample\Image\Text\BoundingBox\TTF as BoundingBox;
 use Sample\Image\Controller\Config\Resize as ResizeConfig;
 use Sample\Exception\Exception;
 
@@ -131,27 +128,12 @@ class Picker
                 $func($base->green, $i, $up),
                 $func($base->blue, $i, $up)
             );
-            if ($this->visibility($target, $base)) {
+            if ($base->visibility($target)) {
                 break;
             }
         }
 
         return $target;
-    }
-
-    public function visibility(Color $target, Color $base)
-    {
-        $baseCalc = new Calculator($base);
-        $targetCalc = new Calculator($target);
-        $targetContrast = $targetCalc->contrast();
-        $colorDiff = $targetCalc->diff($base);
-        $baseContrast = $baseCalc->contrast();
-        $contDiff = abs($baseContrast - $targetContrast);
-        if ($colorDiff >= 500 && $contDiff >= 125) {
-            return true;
-        }
-
-        return false;
     }
 
     protected function loadImage($imagePath): Controller

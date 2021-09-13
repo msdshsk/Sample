@@ -28,26 +28,38 @@ abstract class BoundingBox extends ReadOnly
         return new Size($box);
     }
 
-    public function resize($width, $height): BoundingBox
+    public function fit($width, $height): BoundingBox
     {
         $box = $this;
-
         $fontSize = $this->info->fontSize;
-        while (true) {
+
+        $defaultSize = $this->create();
+
+        if ($defaultSize->width < $width && $defaultSize->height < $height) {
+            $increment = 1;
+        } else {
+            $increment = -1;
+        }
+
+        $class = $this::class;
+        $candidate = $box;
+        $loop = true;
+        do {
+            $box = new $class($this->info->changeFontSize($fontSize));
             $size = $box->create();
 
-            $isW = $size->width < $width;
-            $isH = $size->height < $height;
-
-            if ($isW && $isH) {
-                return $box;
+            $isOver = $size->width < $width && $size->height < $height;
+            if ($isOver && $increment === 1) {
+                $candidate = $box;
+            } elseif (!$isOver && $increment === -1) {
+                $candidate = $box;
+            } else {
+                $loop = false;
             }
 
-            $class = $this::class;
-            $box = new $class($this->info->changeFontSize(--$fontSize));
-            if ($fontSize === 0) {
-                throw new Exception("cant resize");
-            }
-        }
+            $fontSize += $increment;
+        } while ($loop);
+
+        return $candidate;
     }
 }

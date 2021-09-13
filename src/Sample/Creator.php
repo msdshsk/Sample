@@ -148,7 +148,7 @@ class Creator
 
         if ($this->text !== null) {
             $bbox = new BBox($this->text);
-            $rbox = $bbox->resize($width, $height);
+            $rbox = $bbox->fit($width, $height);
 
             $size = $rbox->create();
             $freeTextFit = $size->fit($width, $height)->center();
@@ -167,15 +167,19 @@ class Creator
             $imSizeText = "{$width} x {$height}";
             $imText = new Text($imSizeText, $imPt, $this->text->fontPath, 0);
             $imBBox = new BBox($imText);
-            $imRBox = $imBBox->resize($imW, $imH);
+            $imRBox = $imBBox->fit($imW, $imH);
             $imSize = $imRBox->create();
             $imSizeFit = $imSize->fit($imW, $imH)->leftTop();
+            $picker = Picker::createFromController($ctrl);
+            $picker->setTextSize($imSize->size(), $imSizeFit);
+            $imColor = $picker->createColor();
+
             $pos = $this->imageSizePosition;
 
             $imNewPos = new Coordinate($imSizeFit->x + $pos->x, $imSizeFit->y + $pos->y);
 
             $ctrl->writeText($rbox->info, $freeTextFit, $textColor);
-            $ctrl->writeText($imRBox->info, $imNewPos, $textColor);
+            $ctrl->writeText($imRBox->info, $imNewPos, $imColor);
         }
         
         $ctrl = $this->executeCallback('after');

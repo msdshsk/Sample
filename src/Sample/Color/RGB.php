@@ -16,11 +16,6 @@ class RGB extends \Sample\Property\ReadOnly
         }, [$this->red, $this->green, $this->blue]));
     }
 
-    public function toArray()
-    {
-        return [$this->red, $this->green, $this->blue];
-    }
-
     public function toIndex()
     {
         $index = $this->alpha << 24;
@@ -58,6 +53,35 @@ class RGB extends \Sample\Property\ReadOnly
     public function changeBlue($b)
     {
         return $this->change(null, null, $b, null);
+    }
+
+    public function diff(RGB $target)
+    {
+        $diff = abs($this->red - $target->red);
+        $diff += abs($this->green - $target->green);
+        $diff += abs($this->blue - $target->blue);
+
+        return $diff;
+    }
+
+    public function contrast()
+    {
+        return (($this->red * 299) + ($this->green * 587) + ($this->blue * 114)) / 1000;
+    }
+
+    public function visibility(RGB $target)
+    {
+        $targetContrast = $target->contrast();
+        $baseContrast = $this->contrast();
+        $colorDiff = $target->diff($this);
+        
+        $contrastDiff = abs($baseContrast - $targetContrast);
+
+        if ($colorDiff >= 500 && $contrastDiff >= 125) {
+            return true;
+        }
+
+        return false;
     }
 
     public static function createFromIndex($index)
