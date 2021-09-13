@@ -16,7 +16,7 @@ use Sample\Exception\Exception;
 class Picker
 {
     const SAMPLE_WIDTH = 16;
-    const COLOR_THRESHOLD = 140;
+    const COLOR_THRESHOLD = 127;
     private $im;
     private $imagePath;
     private $controller;
@@ -85,7 +85,6 @@ class Picker
         $r = 0;
         $g = 0;
         $b = 0;
-        $total = 0;
         foreach (range(0, $width - 1) as $x) {
             foreach (range(0, $height -1) as $y) {
                 $rgb = $copy->colorat($x, $y);
@@ -98,7 +97,6 @@ class Picker
         $gAvg = floor($g / $max);
         $bAvg = floor($b / $max);
 
-        // $avgColor = floor($total / $max);
         $rgb = new Color($rAvg, $gAvg, $bAvg);
         $copy->destroy();
         return $rgb;
@@ -108,17 +106,31 @@ class Picker
     {
         $ctrl = $this->createSamplingImage();
 
-        $base = $this->average($ctrl);
-        $pick = ($base->red + $base->green + $base->blue) / 3;
-
+        $base = $this->average($ctrl, false);
+        $pick = floor(($base->red + $base->green + $base->blue) / 3);
         if ($pick < self::COLOR_THRESHOLD) {
             $collection = range($pick + 1, 255);
+            $up = 1;
         } else {
-            $collection = array_reverse(range(0, $pick - 1));
+            // $collection = array_reverse(range(0, $pick - 1));
+            $collection = range(0, $pick - 1);
+            $up = -1;
         }
 
+        $func = function ($c, $i, $up) {
+            $rtn = ($i * $up);
+            $rtn = $rtn < 0 ? 0 : $rtn;
+            $rtn = $rtn > 255 ? 255 : $rtn;
+
+            return $rtn;
+        };
+
         foreach ($collection as $i) {
-            $target = new Color($i, $i, $i);
+            $target = new Color(
+                $func($base->red, $i, $up),
+                $func($base->green, $i, $up),
+                $func($base->blue, $i, $up)
+            );
             if ($this->visibility($target, $base)) {
                 break;
             }
