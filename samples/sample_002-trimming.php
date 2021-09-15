@@ -8,12 +8,12 @@ use Shsk\Sample\Creator;
 use Shsk\Property\Size;
 use Shsk\Property\Coordinate;
 
-function sample_003()
+function sample_002()
 {
     // 画像を読み込む
     $creator = Creator::createFromImage('src/yukachi0I9A5356_TP_V4.jpg');
     // テキストを設定（フォントサイズは自動的に決定されるので設定をしない）
-    $creator->setText('サンプル画像００３（トリミング）', realpath('fonts/Mplus2-Medium.otf'), 10);
+    $creator->setText('サンプル画像００２（トリミング）', realpath('fonts/Mplus2-Medium.otf'), 10);
     // テキスト設定前に処理を追加する
     $creator->before(function ($controller) {
         // 指定した横幅にリサイズする
@@ -28,5 +28,5 @@ function sample_003()
     // 処理実行
     $creator->execute();
     // 画像形式を変換して保存する
-    $creator->save('results/sample003-trimming/sample_003.png', true);
+    $creator->save('results/sample002-trimming/sample_002.png', true);
 }
