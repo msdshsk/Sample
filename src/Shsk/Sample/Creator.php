@@ -14,6 +14,7 @@ use Shsk\Property\Size;
 use Shsk\Property\Coordinate;
 use Shsk\Exception\Exception;
 use Shsk\Color\Picker;
+use Shsk\FileSystem\Directory;
 
 class Creator
 {
@@ -21,9 +22,12 @@ class Creator
     private $backgroundColor;
     private $textColor;
     private $text;
+    private $fitText = true;
     private $isFill;
     private $callbacks = [];
-    private $imageSizePosition;
+    private $imageSizeTextPosition = 'leftTop';
+    private $imageSizeText;
+    private $imageSizeTextSize;
     private $imagePath;
 
     private function __construct(Controller $ctrl, bool $fill)
@@ -52,18 +56,46 @@ class Creator
         return new self($ctrl, false);
     }
 
-    public function setText(Text $text): Creator
+    public function setText(Text|string $text, $fontPath = null, $angle = 0): Creator
     {
-        $this->text = $text;
+        if ($text instanceof Text) {
+            $this->text = $text;
+            $this->fitText = false;
+        } else {
+            $this->text = new Text($text, 8, $fontPath, $angle);
+            $this->fitText = true;
+        }
+
         return $this;
     }
 
-    public function setImageSizeTextPosition(int|Coordinate $x, int $y = null)
+    public function setImageSizeTextPosition(int|Coordinate|string $x, int $y = null)
     {
         if ($x instanceof Coordinate) {
-            $this->imageSizePosition = $x;
+            $this->imageSizeTextPosition = $x;
+        } elseif (is_int($x) && is_int($y)) {
+            $this->imageSizeTextPosition = new Coordinate($x, $y);
+        } elseif (is_string($x)) {
+            $this->imageSizeTextPosition = $x;
         } else {
-            $this->imageSizePosition = new Coordinate($x, $y);
+            throw new Exception("please set x and y");
+        }
+
+        return $this;
+    }
+
+    public function setImageSizeText(string $fontPath = null, float $parcent = 0.3): Creator
+    {
+        if ($fontPath === null && $this->text instanceof Text) {
+            $this->imageSizeText = new Text('', 8, $this->text->fontPath, 0);
+        } elseif (is_string($fontPath)) {
+            $this->imageSizeText = new Text('', 8, $fontPath, 0);
+        } else {
+            throw new Exception("If don't set text, set the fontPath to setImageSizeText");
+        }
+        $this->imageSizeTextSize = $parcent;
+        if ($this->imageSizeTextPosition === null) {
+            $this->setImageSizeTextPosition(new Coordinate(8, 8));
         }
 
         return $this;
@@ -90,10 +122,23 @@ class Creator
         return $this;
     }
 
-    public function save($savePath)
+    public function save($savePath, $autoMakeDir = false)
     {
         $ctrl = $this->controller;
         $writer = $ctrl->createWriter($savePath);
+
+        if ($autoMakeDir === true) {
+            $dirname = dirname($savePath);
+            $basename = basename($savePath);
+            if ($dirname === '.') {
+                $dirname = __DIR__;
+            }
+            $dir = new Directory($dirname);
+            $dir->make();
+            $savePath = $dir->path($basename);
+        }
+
+
         $writer->saveAs($savePath);
 
         return $this;
@@ -148,9 +193,11 @@ class Creator
 
         if ($this->text !== null) {
             $bbox = new BBox($this->text);
-            $rbox = $bbox->fit($width, $height);
+            if ($this->fitText === true) {
+                $bbox = $bbox->fit($width, $height);
+            }
 
-            $size = $rbox->create();
+            $size = $bbox->create();
             $freeTextFit = $size->fit($width, $height)->center();
 
             if (!($this->textColor instanceof Color)) {
@@ -161,24 +208,27 @@ class Creator
                 $textColor = $this->textColor;
             }
 
-            $imPt = 100;
-            $imW = $width / 3;
-            $imH = $height / 3;
-            $imSizeText = "{$width} x {$height}";
-            $imText = new Text($imSizeText, $imPt, $this->text->fontPath, 0);
+            $ctrl->writeText($bbox->info, $freeTextFit, $textColor);
+        }
+
+        if ($this->imageSizeText !== null) {
+            $imW = $width * $this->imageSizeTextSize;
+            $imH = $height * $this->imageSizeTextSize;
+            $imText = $this->imageSizeText->changeText("{$width} x {$height}");
             $imBBox = new BBox($imText);
             $imRBox = $imBBox->fit($imW, $imH);
             $imSize = $imRBox->create();
-            $imSizeFit = $imSize->fit($imW, $imH)->leftTop();
+            if (is_string($this->imageSizeTextPosition)) {
+                $imSizeFit = $imSize->fit($width, $height)->fromString($this->imageSizeTextPosition);
+            } else {
+                $imSizeFit = $imSize->fit($width, $height)->fromCoordinate($this->imageSizeTextPosition);
+            }
+            
             $picker = Picker::createFromController($ctrl);
             $picker->setTextSize($imSize->size(), $imSizeFit);
             $imColor = $picker->createColor();
 
-            $pos = $this->imageSizePosition;
-
-            $imNewPos = new Coordinate($imSizeFit->x + $pos->x, $imSizeFit->y + $pos->y);
-
-            $ctrl->writeText($rbox->info, $freeTextFit, $textColor);
+            $imNewPos = new Coordinate($imSizeFit->x, $imSizeFit->y);
             $ctrl->writeText($imRBox->info, $imNewPos, $imColor);
         }
         

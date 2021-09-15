@@ -9,10 +9,14 @@ use Shsk\Image\Controller\GD as Controller;
 
 trait Resize
 {
-    public function resize(Config $config): Controller
+    public function resize(Config|array $config): Controller
     {
         $height = $this->height();
         $width = $this->width();
+
+        if (is_array($config)) {
+            $config = new Config($config);
+        }
 
         $new_size = $config->calc(new CommonSize($width, $height));
 

@@ -7,8 +7,8 @@ GDで各種サイズのサンプルイメージを簡単に生成するための
 
 ### 1. 簡単な例
 ```php
-use Sample\Creator;
-use Sample\Image\Text;
+use Shsk\Creator;
+use Shsk\Image\Text;
 
 $text = new Text('Hello World', 16, 'C:\\Windows\\Fonts\\meiryo.ttc', 6);
 $creator = Creator::create(400, 400);
@@ -23,8 +23,8 @@ $creator->save('sample.png');
 
 ### 2. 背景色、テキスト色を設定
 ```php
-use Sample\Creator;
-use Sample\Image\Text;
+use Shsk\Creator;
+use Shsk\Image\Text;
 
 $text = new Text('サンプル画像その２', 24, 'C:/Windows/Fonts/Mplus2-Medium.otf', 6);
 // 画像サイズを250 x 200で作成
@@ -48,9 +48,9 @@ $creator->save('sample02.png');
 
 ### 2. 既存の画像をリサイズする
 ```php
-use Sample\Creator;
-use Sample\Image\Text;
-use Sample\Image\Controller\Config\Resize as ResizeConfig;
+use Shsk\Creator;
+use Shsk\Image\Text;
+use Shsk\Image\Controller\Config\Resize as ResizeConfig;
 
 $text = new Text('サンプル画像その３', 32, 'C:/Windows/Fonts/Mplus2-Medium.otf', 6);
 // 既存の画像を読み込む
@@ -76,14 +76,14 @@ $creator->save('sample03.jpg');
 ### 3. なんかもう色々やる
 
 ```php
-use Sample\Creator;
-use Sample\Image\Text;
-use Sample\Image\Controller\Config\Resize as ResizeConfig;
-use Sample\FileSystem\Directory;
-use Sample\Color\Picker as ColorPicker;
-use Sample\Coordinate\Calculator;
-use Sample\Property\Size;
-use Sample\Color\RGB as Color;
+use Shsk\Creator;
+use Shsk\Image\Text;
+use Shsk\Image\Controller\Config\Resize as ResizeConfig;
+use Shsk\FileSystem\Directory;
+use Shsk\Color\Picker as ColorPicker;
+use Shsk\Coordinate\Calculator;
+use Shsk\Property\Size;
+use Shsk\Color\RGB as Color;
 
 // ディレクトリを読み込む
 $srcDir = new Directory('src_images');

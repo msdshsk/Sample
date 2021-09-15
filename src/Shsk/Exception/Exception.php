@@ -4,6 +4,6 @@ namespace Shsk\Exception;
 
 use Shsk\Exception as ExceptionInterface;
 
-class Exception implements ExceptionInterface
+class Exception extends \Exception implements ExceptionInterface
 {
 }

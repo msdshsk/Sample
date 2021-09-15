@@ -6,6 +6,7 @@ use Shsk\Property\Coordinate;
 use Shsk\Coordinate\Calculator;
 use Shsk\Property\Size as ScreenSize;
 use Shsk\Image\Text\Size as TargetSize;
+use Shsk\Exception\Exception;
 
 class Fit extends Calculator
 {
@@ -41,7 +42,7 @@ class Fit extends Calculator
     {
         $coord = parent::center();
         
-        $x = $coord->x - ($this->target->spacing);
+        $x = $coord->x - $this->target->spacing;
         $y = $coord->y - $this->target->baseline;
 
         return new Coordinate($x, $y);
@@ -50,7 +51,7 @@ class Fit extends Calculator
     public function bottomCenter(): Coordinate
     {
         $coord = parent::bottomCenter();
-        $x = $coord->x - ($this->target->spacing);
+        $x = $coord->x - $this->target->spacing;
         $y = $coord->y - $this->target->baseline;
 
         return new Coordinate($x, $y);
@@ -59,7 +60,7 @@ class Fit extends Calculator
     public function topCenter(): Coordinate
     {
         $coord = parent::topCenter();
-        $x = $coord->x - ($this->target->spacing);
+        $x = $coord->x - $this->target->spacing;
         $y = $coord->y + $this->target->baseline;
 
         return new Coordinate($x, $y);
@@ -68,7 +69,7 @@ class Fit extends Calculator
     public function leftTop(): Coordinate
     {
         $coord = parent::leftTop();
-        $x = $coord->x - ($this->target->spacing);
+        $x = $coord->x - $this->target->spacing;
         $y = $coord->y + $this->target->baseline;
 
         return new Coordinate($x, $y);
@@ -76,8 +77,18 @@ class Fit extends Calculator
 
     public function rightTop(): Coordinate
     {
-        $x = $this->width - $this->target->width;
-        $y = $this->size->height + $this->target->baseline;
+        $coord = parent::rightTop();
+        $x = $coord->x;
+        $y = $coord->y + $this->target->baseline;
+
+        return new Coordinate($x, $y);
+    }
+
+    public function fromCoordinate(Coordinate $coord): Coordinate
+    {
+        $coord = parent::fromCoordinate($coord);
+        $x = $coord->x - $this->target->spacing;
+        $y = $coord->y + $this->target->baseline;
 
         return new Coordinate($x, $y);
     }

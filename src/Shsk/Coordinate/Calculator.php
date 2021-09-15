@@ -4,6 +4,7 @@ namespace Shsk\Coordinate;
 
 use Shsk\Property\Coordinate;
 use Shsk\Property\Size;
+use Shsk\Exception\Exception;
 
 class Calculator
 {
@@ -108,5 +109,32 @@ class Calculator
         $y = 0;
 
         return $this->returnCoordinate($x, $y);
+    }
+
+    public function fromString(string $pos): Coordinate
+    {
+        switch ($pos) {
+            case self::LEFT_TOP:
+                return $this->leftTop();
+            case self::LEFT_BOTTOM:
+                return $this->leftBottom();
+            case self::RIGHT_BOTTOM:
+                return $this->rightBottom();
+            case self::RIGHT_TOP:
+                return $this->rightTop();
+            case 'bottomCenter':
+                return $this->bottomCenter();
+            case 'topCenter':
+                return $this->topCenter();
+            case 'center':
+                return $this->center();
+            default:
+                throw new Exception("can't execute");
+        }
+    }
+
+    public function fromCoordinate(Coordinate $coord): Coordinate
+    {
+        return $this->returnCoordinate($coord->x, $coord->y);
     }
 }

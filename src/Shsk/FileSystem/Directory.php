@@ -5,6 +5,7 @@ namespace Shsk\FileSystem;
 use Shsk\Exception\FunctionException;
 use Shsk\FileSystem\Directory\SearchDirectoryIterator;
 use Shsk\FileSystem\Directory\SearchFileIterator;
+use Shsk\Exception\Exception;
 
 class Directory
 {
@@ -13,11 +14,7 @@ class Directory
 
     public function __construct($rootDir)
     {
-        $rootDir = self::cleanPath($rootDir);
-
-        if (strpos($rootDir, ':') === false && $rootDir[0] !== '/') {
-            $rootDir = getcwd() . self::DS . $rootDir;
-        }
+        $rootDir = self::getAbsolutePath($rootDir, true);
 
         $this->rootDir = $rootDir;
     }
@@ -32,6 +29,11 @@ class Directory
         if ($path === null) {
             return $this->rootDir;
         }
+        $path = self::cleanPath($path, false);
+        if ($path[0] === self::DS) {
+            return $this->rootDir . $path;
+        }
+
         return $this->rootDir . self::DS . $path;
     }
 
@@ -72,6 +74,10 @@ class Directory
     {
         $path = self::cleanPath($path);
 
+        if (is_dir($path)) {
+            return;
+        }
+
         $throw = null;
         try {
             FunctionException::start();
@@ -86,17 +92,38 @@ class Directory
         }
     }
 
-    public static function cleanPath($path)
+    public static function cleanPath($path, $absolute = false)
     {
         $path = str_replace(['\\', '/'], self::DS, $path);
         if (substr($path, strlen($path), 1) === self::DS) {
             $path = substr($path, 0, strlen($path) - 1);
         }
 
-        if (strpos($path, ':') === false && $path[0] !== self::DS) {
+        if (strpos($path, ':') === false && $path[0] !== self::DS && $absolute === true) {
             $path = getcwd() . self::DS . $path;
         }
 
         return $path;
+    }
+
+    public static function getAbsolutePath($path, $absolute = false)
+    {
+        $path = self::cleanPath($path, $absolute);
+        $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+        $absolutes = array();
+        foreach ($parts as $i => $part) {
+            if ('.' === $part) {
+                continue;
+            }
+            if ('..' === $part) {
+                if ($i === 0) {
+                    throw new Exception("can't prosess first directory because '..' is upper.");
+                }
+                array_pop($absolutes);
+            } else {
+                $absolutes[] = $part;
+            }
+        }
+        return implode(DIRECTORY_SEPARATOR, $absolutes);
     }
 }
