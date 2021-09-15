@@ -5,9 +5,16 @@ namespace Shsk;
 class Autoload
 {
     const ROOT = __DIR__;
+
+    private static $registed = false;
+
     public static function register()
     {
-        return spl_autoload_register([__CLASS__, 'include']);
+        if (self::$registed === false) {
+            self::$registed = spl_autoload_register([__CLASS__, 'include']);
+            return self::$registed;
+        }
+        return self::$registed;
     }
 
     public static function include($class)

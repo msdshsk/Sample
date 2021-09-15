@@ -19,12 +19,12 @@ class Directory
         $this->rootDir = $rootDir;
     }
 
-    public function exists()
+    public function exists(): bool
     {
         return is_dir($this->rootDir);
     }
 
-    public function path($path = null)
+    public function path($path = null): string
     {
         if ($path === null) {
             return $this->rootDir;
@@ -37,17 +37,55 @@ class Directory
         return $this->rootDir . self::DS . $path;
     }
 
-    public function make()
+    public function make(): bool
     {
         return self::makeDirectory($this->rootDir);
     }
 
-    public function searchFiles($keyword = null, $returnIterator = true)
+    public function remove($recursive = false)
     {
-        $iterator = new SearchFileIterator($this->rootDir, $keyword);
-        if ($returnIterator === true) {
-            return $iterator;
+        $throw = null;
+        try {
+            FunctionException::start();
+            if ($recursive === true) {
+                $files = $this->searchFiles();
+                foreach ($files as $filePath) {
+                    unlink($filePath);
+                }
+                $dirs = $this->searchDirectories();
+                $dirs = self::sortDepth($dirs, false);
+    
+                foreach ($dirs as $dir) {
+                    rmdir($dir);
+                }
+            } else {
+                rmdir($this->rootDir);
+            }
+        } catch (FunctionException $e) {
+            $throw = $e;
+        } finally {
+            FunctionException::end();
         }
+        if ($throw !== null) {
+            throw $throw;
+        }
+
+        return true;
+    }
+
+    public function getSearchFileIterator($keyword = null): SearchFileIterator
+    {
+        return new SearchFileIterator($this->rootDir, $keyword);
+    }
+
+    public function getSearchDirectoryIterator($keyword = null): SearchDirectoryIterator
+    {
+        return new SearchDirectoryIterator($this->rootDir, $keyword);
+    }
+
+    public function searchFiles($keyword = null): array
+    {
+        $iterator = $this->getSearchFileIterator($keyword);
 
         $results = [];
         foreach ($iterator as $file) {
@@ -56,26 +94,23 @@ class Directory
         return $results;
     }
 
-    public function searchDirectory($keyword = null, $returnIterator = true)
+    public function searchDirectories($keyword = null): array
     {
-        $iterator = new SearchDirectoryIterator($this->rootDir, $keyword);
-        if ($returnIterator === true) {
-            return $iterator;
-        }
+        $iterator = $this->getSearchDirectoryIterator($keyword);
 
         $results = [];
         foreach ($iterator as $file) {
-            $results[] = $file->getPathname();
+            $results[] = $file->getPath();
         }
         return $results;
     }
 
-    public static function makeDirectory($path, $parmissions = 0777)
+    public static function makeDirectory($path, $parmissions = 0777): bool
     {
         $path = self::cleanPath($path);
 
         if (is_dir($path)) {
-            return;
+            return false;
         }
 
         $throw = null;
@@ -90,6 +125,8 @@ class Directory
         if ($throw !== null) {
             throw $throw;
         }
+
+        return true;
     }
 
     public static function cleanPath($path, $absolute = false)
@@ -125,5 +162,24 @@ class Directory
             }
         }
         return implode(DIRECTORY_SEPARATOR, $absolutes);
+    }
+
+    public static function sortDepth($dirs, $asc = true)
+    {
+        usort($dirs, function ($a, $b) use ($asc) {
+            $count_a = count(explode(DIRECTORY_SEPARATOR, $a));
+            $count_b = count(explode(DIRECTORY_SEPARATOR, $b));
+
+            if ($a === $b) {
+                return 0;
+            }
+
+            $x = $asc ? $a : $b;
+            $y = $asc ? $b : $a;
+
+            return ($x < $y) ? -1 : 1;
+        });
+
+        return $dirs;
     }
 }

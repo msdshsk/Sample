@@ -2,15 +2,16 @@
 
 namespace Shsk\FileSystem\Directory;
 
+use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 
-class SearchDirectoryIterator extends RecursiveDirectoryIterator
+class SearchDirectoryIterator extends RecursiveIteratorIterator
 {
     private $keyword = null;
     public function __construct($dir, $keyword = null)
     {
         $this->keyword = $keyword;
-        parent::__construct($dir);
+        parent::__construct(new RecursiveDirectoryIterator($dir));
     }
 
     public function next()
@@ -41,7 +42,7 @@ class SearchDirectoryIterator extends RecursiveDirectoryIterator
 
     private function validateKeyword(\SplFileInfo $file): bool
     {
-        if ($file->getFilename() === '.' || $file->getFilename() === '..') {
+        if ($file->getFilename() !== '.') {
             return false;
         }
 
@@ -49,7 +50,11 @@ class SearchDirectoryIterator extends RecursiveDirectoryIterator
             return false;
         }
 
-        if (true === (bool) preg_match($this->keyword, $file->getFilename(), $match)) {
+        if ($this->keyword === null) {
+            return true;
+        }
+
+        if (true === (bool) preg_match($this->keyword, $file->getPath(), $match)) {
             return true;
         }
 
