@@ -61,7 +61,7 @@ class Fit extends Calculator
     {
         $coord = parent::topCenter();
         $x = $coord->x - $this->target->spacing;
-        $y = $coord->y + $this->target->baseline;
+        $y = $coord->y - $this->target->baseline;
 
         return new Coordinate($x, $y);
     }
@@ -70,7 +70,7 @@ class Fit extends Calculator
     {
         $coord = parent::leftTop();
         $x = $coord->x - $this->target->spacing;
-        $y = $coord->y + $this->target->baseline;
+        $y = $coord->y - $this->target->baseline;
 
         return new Coordinate($x, $y);
     }
@@ -79,7 +79,7 @@ class Fit extends Calculator
     {
         $coord = parent::rightTop();
         $x = $coord->x;
-        $y = $coord->y + $this->target->baseline;
+        $y = $coord->y - $this->target->baseline;
 
         return new Coordinate($x, $y);
     }

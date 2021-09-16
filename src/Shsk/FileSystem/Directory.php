@@ -14,7 +14,7 @@ class Directory
 
     public function __construct($rootDir)
     {
-        $rootDir = self::getAbsolutePath($rootDir, true);
+        $rootDir = static::getAbsolutePath($rootDir, true);
 
         $this->rootDir = $rootDir;
     }
@@ -29,17 +29,17 @@ class Directory
         if ($path === null) {
             return $this->rootDir;
         }
-        $path = self::cleanPath($path, false);
-        if ($path[0] === self::DS) {
+        $path = static::cleanPath($path, false);
+        if ($path[0] === static::DS) {
             return $this->rootDir . $path;
         }
 
-        return $this->rootDir . self::DS . $path;
+        return $this->rootDir . static::DS . $path;
     }
 
     public function make(): bool
     {
-        return self::makeDirectory($this->rootDir);
+        return static::makeDirectory($this->rootDir);
     }
 
     public function remove($recursive = false)
@@ -53,7 +53,7 @@ class Directory
                     unlink($filePath);
                 }
                 $dirs = $this->searchDirectories();
-                $dirs = self::sortDepth($dirs, false);
+                $dirs = static::sortDepth($dirs, false);
     
                 foreach ($dirs as $dir) {
                     rmdir($dir);
@@ -73,19 +73,19 @@ class Directory
         return true;
     }
 
-    public function getSearchFileIterator($keyword = null): SearchFileIterator
+    public function getSearchFileIterator($keyword = null, bool $deep = true): SearchFileIterator
     {
-        return new SearchFileIterator($this->rootDir, $keyword);
+        return new SearchFileIterator($this->rootDir, $keyword, $deep);
     }
 
-    public function getSearchDirectoryIterator($keyword = null): SearchDirectoryIterator
+    public function getSearchDirectoryIterator($keyword = null, bool $deep = true): SearchDirectoryIterator
     {
-        return new SearchDirectoryIterator($this->rootDir, $keyword);
+        return new SearchDirectoryIterator($this->rootDir, $keyword, $deep);
     }
 
-    public function searchFiles($keyword = null): array
+    public function searchFiles($keyword = null, bool $deep = true): array
     {
-        $iterator = $this->getSearchFileIterator($keyword);
+        $iterator = $this->getSearchFileIterator($keyword, $deep);
 
         $results = [];
         foreach ($iterator as $file) {
@@ -94,9 +94,9 @@ class Directory
         return $results;
     }
 
-    public function searchDirectories($keyword = null): array
+    public function searchDirectories($keyword = null, bool $deep = true): array
     {
-        $iterator = $this->getSearchDirectoryIterator($keyword);
+        $iterator = $this->getSearchDirectoryIterator($keyword, $deep);
 
         $results = [];
         foreach ($iterator as $file) {
@@ -107,7 +107,7 @@ class Directory
 
     public static function makeDirectory($path, $parmissions = 0777): bool
     {
-        $path = self::cleanPath($path);
+        $path = static::cleanPath($path);
 
         if (is_dir($path)) {
             return false;
@@ -131,13 +131,13 @@ class Directory
 
     public static function cleanPath($path, $absolute = false)
     {
-        $path = str_replace(['\\', '/'], self::DS, $path);
-        if (substr($path, strlen($path), 1) === self::DS) {
+        $path = str_replace(['\\', '/'], static::DS, $path);
+        if (substr($path, strlen($path), 1) === static::DS) {
             $path = substr($path, 0, strlen($path) - 1);
         }
 
-        if (strpos($path, ':') === false && $path[0] !== self::DS && $absolute === true) {
-            $path = getcwd() . self::DS . $path;
+        if (strpos($path, ':') === false && $path[0] !== static::DS && $absolute === true) {
+            $path = getcwd() . static::DS . $path;
         }
 
         return $path;
@@ -145,7 +145,7 @@ class Directory
 
     public static function getAbsolutePath($path, $absolute = false)
     {
-        $path = self::cleanPath($path, $absolute);
+        $path = static::cleanPath($path, $absolute);
         $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
         $absolutes = array();
         foreach ($parts as $i => $part) {
@@ -167,8 +167,8 @@ class Directory
     public static function sortDepth($dirs, $asc = true)
     {
         usort($dirs, function ($a, $b) use ($asc) {
-            $count_a = count(explode(DIRECTORY_SEPARATOR, $a));
-            $count_b = count(explode(DIRECTORY_SEPARATOR, $b));
+            $count_a = substr_count($a, DIRECTORY_SEPARATOR);
+            $count_b = substr_count($b, DIRECTORY_SEPARATOR);
 
             if ($a === $b) {
                 return 0;

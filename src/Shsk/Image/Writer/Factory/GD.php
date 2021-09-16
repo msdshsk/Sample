@@ -22,12 +22,18 @@ class GD implements Factory
     private $extension;
     private $resource;
     private $options;
+    private $filePath;
     
-    public function __construct($extension, $resource, $options = [])
+    public function __construct($extension, $resource, $options = [], $filePath = null)
     {
-        $this->extension = $extension;
+        if ($extension === null && $filePath !== null) {
+            $this->extension = pathinfo($filePath, PATHINFO_EXTENSION);
+        } else {
+            $this->extension = $extension;
+        }
         $this->resource = $resource;
         $this->options = $options;
+        $this->filePath = $filePath;
     }
 
     public function create(): Type
@@ -40,6 +46,6 @@ class GD implements Factory
 
         $class = self::TYPES[$ext];
 
-        return new $class($this->resource, $this->options);
+        return new $class($this->resource, $this->options, $this->filePath);
     }
 }

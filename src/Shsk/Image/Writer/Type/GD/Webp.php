@@ -14,4 +14,9 @@ class Webp extends GD
 
         return imagewebp($this->getResource(), $filePath, $quality);
     }
+
+    public function save()
+    {
+        $this->saveAs($this->getFilePath());
+    }
 }

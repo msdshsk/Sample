@@ -4,5 +4,6 @@ namespace Shsk\Image\Writer;
 
 interface Type
 {
-    public function saveAs($filePath);
+    public function saveAs(string $filePath);
+    public function save();
 }

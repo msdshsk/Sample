@@ -14,4 +14,9 @@ class Jpg extends GD
 
         return imagejpeg($this->getResource(), $filePath, $quality);
     }
+
+    public function save()
+    {
+        $this->saveAs($this->getFilePath());
+    }
 }

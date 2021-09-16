@@ -14,4 +14,9 @@ class Png extends GD
 
         return imagepng($this->getResource(), $filePath, $quality, $filters);
     }
+
+    public function save()
+    {
+        $this->saveAs($this->getFilePath());
+    }
 }

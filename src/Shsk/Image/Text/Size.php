@@ -56,9 +56,9 @@ class Size extends CommonSize
         }
 
         if ($lfbmy < $rtbmy) {
-            $baseline = $rtbmy;
+            $baseline = $rtbmy - 1;
         } else {
-            $baseline = $lfbmy;
+            $baseline = $lfbmy - 1;
         }
 
         if ($lftpx < $lfbmx) {

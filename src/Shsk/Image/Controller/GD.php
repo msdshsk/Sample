@@ -78,10 +78,9 @@ class GD implements ControllerInterface
         return Color::createFromIndex($index);
     }
 
-    public function createWriter($filePath): Type
+    public function createWriter($filePath, $options = []): Type
     {
-        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
-        $factory = new WriterFactory($ext, $this->im);
+        $factory = new WriterFactory(null, $this->im, $options, $filePath);
         return $factory->create();
     }
 

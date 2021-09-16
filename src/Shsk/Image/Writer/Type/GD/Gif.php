@@ -10,4 +10,9 @@ class Gif extends GD
     {
         return imagegif($this->getResource(), $filePath);
     }
+
+    public function save()
+    {
+        $this->saveAs($this->getFilePath());
+    }
 }

@@ -46,7 +46,7 @@ class Picker
             $trimImg = $orgImg->trimming($this->textSize, $this->textCoord);
         }
 
-        $config = new ResizeConfig(['width' => self::SAMPLE_WIDTH]);
+        $config = new ResizeConfig(['width' => static::SAMPLE_WIDTH]);
 
         if ($trimImg !== null) {
             $resizedImg = $trimImg->resize($config);
@@ -106,7 +106,7 @@ class Picker
         $base = $this->average($ctrl, false);
 
         $pick = floor(($base->red + $base->green + $base->blue) / 3);
-        if ($pick < self::COLOR_THRESHOLD) {
+        if ($pick < static::COLOR_THRESHOLD) {
             $collection = range($pick + 1, 255);
             $up = 1;
         } else {

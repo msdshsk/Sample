@@ -2,19 +2,26 @@
 
 namespace Shsk\FileSystem\Directory;
 
-use Iterator;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
+use Shsk\FileSystem\Directory;
 
 class SearchFileIterator extends RecursiveIteratorIterator
 {
-    private $dir;
-    private $matchResult = [];
     private $keyword = "";
-
-    public function __construct($dir, string $keyword = null)
+    private $deep;
+    private $currentDepth;
+    private $currentDir;
+    public function __construct($dir, string $keyword = null, bool $deep = true)
     {
         $this->keyword = $keyword;
+        $this->deep = $deep;
+        $this->currentDir = Directory::cleanPath($dir, false);
+
+        if ($deep === false) {
+            $this->currentDepth = substr_count($this->currentDir, DIRECTORY_SEPARATOR);
+        }
+        
         parent::__construct(new RecursiveDirectoryIterator($dir));
     }
 
@@ -49,13 +56,24 @@ class SearchFileIterator extends RecursiveIteratorIterator
         if ($file->getFilename() === '.' || $file->getFilename() === '..') {
             return false;
         }
-
-        if ($this->keyword === null) {
-            return true;
+        
+        $valid = true;
+        if ($this->deep === false) {
+            $valid = substr_count($file->getPath(), DIRECTORY_SEPARATOR) - 1 === $this->currentDepth;
         }
 
-        if (true === (bool) preg_match($this->keyword, $file->getFilename(), $match)) {
-            return true;
+        if ($this->keyword === null) {
+            return $valid;
+        }
+
+        if ($valid === true) {
+            if (is_callable($this->keyword)) {
+                return call_user_func($this->keyword, $file);
+            }
+
+            if (true === (bool) preg_match($this->keyword, $file->getFilename(), $match)) {
+                return true;
+            }
         }
 
         return false;

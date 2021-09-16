@@ -8,10 +8,12 @@ abstract class GD implements Type
 {
     private $resource;
     private $options;
-    public function __construct($im, $options = [])
+    private $filePath;
+    public function __construct($im, $options = [], $filePath = null)
     {
         $this->resource = $im;
         $this->options = $options;
+        $this->filePath = $filePath;
     }
     
     protected function getResource()
@@ -22,5 +24,10 @@ abstract class GD implements Type
     protected function getOptions()
     {
         return $this->options;
+    }
+
+    protected function getFilePath()
+    {
+        return $this->filePath;
     }
 }
