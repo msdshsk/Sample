@@ -20,12 +20,15 @@ trait Grid
 
         for ($i = 1; $i < $rows; $i++) {
             $row = $i * $span;
-            imageline($im, $row, 0, $row, $size->height, $index);
+            // imageline($im, $row, 0, $row, $size->height, $index);
+
+            imageline($im, 0, $row, $size->width - 1, $row, $index);
         }
 
         for ($i = 1; $i < $cols; $i++) {
             $col = $i * $span;
-            imageline($im, 0, $col, $size->width, $col, $index);
+            // imageline($im, 0, $col, $size->width, $col, $index);
+            imageline($im, $col, 0, $col, $size->height - 1, $index);
         }
         return true;
     }
