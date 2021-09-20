@@ -55,6 +55,11 @@ class GD implements ControllerInterface
         return imagecolorallocatealpha($this->im, $color->red, $color->green, $color->blue, $color->alpha);
     }
 
+    public function transparent(Color $color = null): int
+    {
+        return imagecolortransparent($this->im, $color ? $color->toIndex() : null);
+    }
+
     public function fill($x, $y, Color $color)
     {
         $index = $this->allocate($color);

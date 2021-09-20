@@ -12,7 +12,7 @@ class SearchFileIterator extends RecursiveIteratorIterator
     private $deep;
     private $currentDepth;
     private $currentDir;
-    public function __construct($dir, string $keyword = null, bool $deep = true)
+    public function __construct($dir, string|callable $keyword = null, bool $deep = true)
     {
         $this->keyword = $keyword;
         $this->deep = $deep;

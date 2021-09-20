@@ -34,6 +34,7 @@ class RGB extends ReadOnly
         $g = $g ?? $this->green;
         $b = $b ?? $this->blue;
         $a = $a ?? $this->alpha;
+
         return new self($r, $g, $b, $a);
     }
 
@@ -92,7 +93,9 @@ class RGB extends ReadOnly
         $r = ($index >> 16) & 0xFF;
         $g = ($index >> 8) & 0xFF;
         $b = $index & 0xFF;
-
+        $x = new self($r, $g, $b, $a);
+        print_r($x->toArray());
+        echo $index . PHP_EOL;
         return new self($r, $g, $b, $a);
     }
 
