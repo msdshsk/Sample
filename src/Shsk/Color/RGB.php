@@ -94,8 +94,6 @@ class RGB extends ReadOnly
         $g = ($index >> 8) & 0xFF;
         $b = $index & 0xFF;
         $x = new self($r, $g, $b, $a);
-        print_r($x->toArray());
-        echo $index . PHP_EOL;
         return new self($r, $g, $b, $a);
     }
 

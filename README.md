@@ -114,3 +114,34 @@ $creator->save('results/sample004-size_text/sample_004.png', true);
 
 ### 結果
 ![sample04](samples/results/sample004-size_text/sample_004.png)
+
+### 5. グリッドを描画する
+
+```php
+use Shsk\Sample\Creator;
+use Shsk\Color\RGB as Color;
+// 画像を読み込む
+$creator = Creator::createFromImage('src/ishinageport_TP_V4.jpg');
+// テキストを設定（フォントサイズは自動的に決定されるので設定をしない）
+$creator->setText('サンプル画像００５', realpath('fonts/Mplus2-Medium.otf'), 0);
+// 画像サイズを表す{width} x {height}のテキストを設定する
+$creator->setImageSizeText();
+
+// テキスト設定前に処理を追加する
+$creator->before(function ($controller) {
+    // 指定した横幅にリサイズする
+    $resized = $controller->resize(['width' => 600]);
+
+    // 方眼を書き込む
+    $resized->drawGrid(20, new Color(0, 0, 0));
+
+    return $resized;
+});
+// 処理実行
+$creator->execute();
+// 画像形式を変換して保存する
+$creator->save('results/sample005-draw_grid/sample_005.png', true);
+```
+
+### 結果
+![sample05](samples/results/sample005-draw_grid/sample_005.png)

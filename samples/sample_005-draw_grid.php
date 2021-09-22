@@ -1,7 +1,7 @@
 <?php
 
-require_once '../src/Shsk/Autoload.php';
-Shsk\Autoload::register();
+require_once '../src/Shsk/Autoloader.php';
+new Shsk\Autoloader();
 
 use Shsk\Sample\Creator;
 use Shsk\Color\RGB as Color;
