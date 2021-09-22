@@ -27,14 +27,14 @@ trait Accessor
         }
     }
 
-    public function get($name)
+    public function get($name, $default = null)
     {
         if (!($this instanceof Gettable)) {
             throw new Exception("can't set property");
         }
 
         if ($this->has($name)) {
-            return $this->props[$name];
+            return $this->props[$name] ?? $default;
         }
         throw new Exception('unknown property :' . $name);
     }
