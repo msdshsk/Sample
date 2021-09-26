@@ -2,64 +2,88 @@
 
 namespace Shsk\Image\Text;
 
-use Shsk\Exception\Exception;
+use Shsk\Property\Size;
+use Shsk\Property\Coordinate;
 use Shsk\Property\ReadOnly;
-use Shsk\Image\Text;
 
-abstract class BoundingBox extends ReadOnly
+class BoundingBox extends Size
 {
-    public function __construct(Text $text)
+    public function __construct($box)
     {
-        parent::__construct([
-            'info' => $text,
-        ]);
+        $ary = $this->init($box);
+        $this->setProperties($ary);
     }
 
-    abstract protected function createBox(int $fontSize, int $angle, string $fontPath, string $text): array;
-
-    public function create(): Size
+    private function init($box): array
     {
-        $box = $this->createbox(
-            $this->info->fontSize,
-            $this->info->angle,
-            $this->info->fontPath,
-            $this->info->text
-        );
-        return new Size($box);
-    }
+        $lftpx = $box[6];
+        $lftpy = $box[7];
+        $lfbmx = $box[0];
+        $lfbmy = $box[1];
+        $rttpx = $box[4];
+        $rttpy = $box[5];
+        $rtbmx = $box[2];
+        $rtbmy = $box[3];
+        $lftp = new Coordinate($lftpx, $lftpy);
+        $lfbm = new Coordinate($lfbmx, $lfbmy);
+        $rttp = new Coordinate($rttpx, $rttpy);
+        $rtbm = new Coordinate($rtbmx, $rtbmy);
+        $lf = new ReadOnly(['top' => $lftp, 'bottom' => $lfbm]);
+        $rt = new ReadOnly(['top' => $rttp, 'bottom' => $rtbm]);
 
-    public function fit($width, $height): BoundingBox
-    {
-        $box = $this;
-        $fontSize = $this->info->fontSize;
-
-        $defaultSize = $this->create();
-
-        if ($defaultSize->width < $width && $defaultSize->height < $height) {
-            $increment = 1;
+        if ($lfbmy < $rtbmy) {
+            $max_y = $rtbmy;
         } else {
-            $increment = -1;
+            $max_y = $lfbmy;
         }
 
-        $class = $this::class;
-        $candidate = $box;
-        $loop = true;
-        do {
-            $box = new $class($this->info->changeFontSize($fontSize));
-            $size = $box->create();
+        if ($lftpy < $rttpy) {
+            $min_y = $lftpy;
+        } else {
+            $min_y = $rttpy;
+        }
 
-            $isOver = $size->width < $width && $size->height < $height;
-            if ($isOver && $increment === 1) {
-                $candidate = $box;
-            } elseif (!$isOver && $increment === -1) {
-                $candidate = $box;
-            } else {
-                $loop = false;
-            }
+        if ($rttpx < $rtbmx) {
+            $max_x = $rtbmx;
+        } else {
+            $max_x = $rttpx;
+        }
 
-            $fontSize += $increment;
-        } while ($loop);
+        if ($lftpx < $lfbmx) {
+            $min_x = $lftpx;
+        } else {
+            $min_x = $lfbmx;
+        }
 
-        return $candidate;
+        if ($lfbmy < $rtbmy) {
+            $baseline = $rtbmy - 1;
+        } else {
+            $baseline = $lfbmy - 1;
+        }
+
+        if ($lftpx < $lfbmx) {
+            $spacing = $lftpx;
+        } else {
+            $spacing = $lfbmx;
+        }
+
+        return [
+            'left' => $lf,
+            'right' => $rt,
+            'width' => $max_x - $min_x,
+            'height' => $max_y - $min_y,
+            'baseline' => $baseline,
+            'spacing' => $spacing,
+        ];
+    }
+
+    public function coordinator(int|Size $width = null, int $height = null): Coordinator
+    {
+        return new Coordinator($this, $width, $height);
+    }
+
+    public function size(): Size
+    {
+        return new Size($this->width, $this->height);
     }
 }

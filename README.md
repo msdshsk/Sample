@@ -119,7 +119,7 @@ $creator->save('results/sample004-size_text/sample_004.png', true);
 
 ```php
 use Shsk\Sample\Creator;
-use Shsk\Color\RGB as Color;
+use Shsk\Image\Color as Color;
 // 画像を読み込む
 $creator = Creator::createFromImage('src/ishinageport_TP_V4.jpg');
 // テキストを設定（フォントサイズは自動的に決定されるので設定をしない）

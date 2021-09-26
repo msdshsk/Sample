@@ -2,57 +2,49 @@
 
 namespace Shsk\Sample;
 
-use Shsk\Image\Creator\GD\TrueColor;
-use Shsk\Image\Reader\Factory\GD as ReaderFactory;
-use Shsk\Image\Writer\Factory\GD as WriterFactory;
-use Shsk\Image\Controller\GD as Controller;
-use Shsk\Color\RGB as Color;
-use Shsk\Image\Text\BoundingBox\TTF as BBox;
+use Shsk\Image\Creator\TrueColor;
+use Shsk\Image\Reader\Factory as ReaderFactory;
+use Shsk\Image\Writer\Factory as WriterFactory;
+use Shsk\Image\Controller;
+use Shsk\Image\Color as Color;
+use Shsk\Image\Text\BoundingBox as BBox;
 use Shsk\Image\Text;
 use Shsk\Image\Controller\Config\Resize as ResizeConfig;
 use Shsk\Property\Size;
 use Shsk\Property\Coordinate;
 use Shsk\Exception\Exception;
-use Shsk\Color\Picker;
+use Shsk\Image\Color\Picker;
 use Shsk\FileSystem\Directory;
 
 class Creator
 {
     private $im;
-    private $backgroundColor;
     private $textColor;
     private $text;
     private $fitText = true;
-    private $isFill;
     private $callbacks = [];
     private $imageSizeTextPosition = 'leftTop';
     private $imageSizeText;
     private $imageSizeTextSize;
-    private $imagePath;
 
-    private function __construct(Controller $ctrl, bool $fill)
+    private function __construct(Controller $ctrl)
     {
         $this->controller = $ctrl;
-        $this->isFill = $fill;
-        $this->backgroundColor = new Color(200, 200, 200);
         $this->imageSizePosition = new Coordinate(3, 3);
-        $this->imagePath = $ctrl->path();
     }
 
-    public static function create($width, $height)
+    public static function create($width, $height, Color $baseColor = null)
     {
-        $creator = new TrueColor($width, $height);
-        $ctrl = $creator->create();
+        if ($baseColor === null) {
+            $baseColor = new Color(200, 200, 200);
+        }
+        $ctrl = Controller::create(new Size($width, $height), $baseColor);
         return new self($ctrl, true);
     }
 
     public static function createFromImage(string $path)
     {
-        $ext = pathinfo($path, PATHINFO_EXTENSION);
-        
-        $factory = new ReaderFactory($ext);
-        $reader = $factory->create();
-        $ctrl = $reader->create($path);
+        $ctrl = Controller::createFromImage($path);
         return new self($ctrl, false);
     }
 
@@ -69,7 +61,7 @@ class Creator
         return $this;
     }
 
-    public function setImageSizeTextPosition(int|Coordinate|string $x, int $y = null)
+    public function setImageSizeTextPosition($x, int $y = null)
     {
         if ($x instanceof Coordinate) {
             $this->imageSizeTextPosition = $x;
@@ -187,49 +179,43 @@ class Creator
         $width = $ctrl->width();
         $height = $ctrl->height();
 
-        if ($this->isFill) {
-            $ctrl->fill(0, 0, $this->backgroundColor);
-        }
-
         if ($this->text !== null) {
-            $bbox = new BBox($this->text);
             if ($this->fitText === true) {
-                $bbox = $bbox->fit($width, $height);
+                $newText = $this->text->fit($width, $height);
             }
 
-            $size = $bbox->create();
-            $freeTextFit = $size->fit($width, $height)->center();
+            $bbox = $newText->boundingBox();
+            $freeTextFit = $bbox->coordinator($width, $height)->center();
 
             if (!($this->textColor instanceof Color)) {
                 $picker = Picker::createFromController($ctrl);
-                $picker->setTextSize($size->size(), $freeTextFit);
+                $picker->setTextSize($bbox->size(), $freeTextFit);
                 $textColor = $picker->createColor();
             } else {
                 $textColor = $this->textColor;
             }
 
-            $ctrl->writeText($bbox->info, $freeTextFit, $textColor);
+            $ctrl->writeText($newText, $freeTextFit, $textColor);
         }
 
         if ($this->imageSizeText !== null) {
             $imW = $width * $this->imageSizeTextSize;
             $imH = $height * $this->imageSizeTextSize;
-            $imText = $this->imageSizeText->changeText("{$width} x {$height}");
-            $imBBox = new BBox($imText);
-            $imRBox = $imBBox->fit($imW, $imH);
-            $imSize = $imRBox->create();
+            $imText = $this->imageSizeText->withText("{$width} x {$height}");
+            $imNewText = $imText->fit($imW, $imH);
+            $imBox = $imNewText->boundingBox();
             if (is_string($this->imageSizeTextPosition)) {
-                $imSizeFit = $imSize->fit($width, $height)->fromString($this->imageSizeTextPosition);
-            } else {
-                $imSizeFit = $imSize->fit($width, $height)->fromCoordinate($this->imageSizeTextPosition);
+                $imSizeFit = $imBox->coordinator($width, $height)->fromString($this->imageSizeTextPosition);
+            } elseif ($this->imageSizeTextPosition instanceof Coordinate) {
+                $imSizeFit = $imBox->coordinator($width, $height)->fromCoordinate($this->imageSizeTextPosition);
             }
             
             $picker = Picker::createFromController($ctrl);
-            $picker->setTextSize($imSize->size(), $imSizeFit);
+            $picker->setTextSize($imBox->size(), $imSizeFit);
             $imColor = $picker->createColor();
 
             $imNewPos = new Coordinate($imSizeFit->x, $imSizeFit->y);
-            $ctrl->writeText($imRBox->info, $imNewPos, $imColor);
+            $ctrl->writeText($imNewText, $imNewPos, $imColor);
         }
         
         $ctrl = $this->executeCallback('after');

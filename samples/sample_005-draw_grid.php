@@ -4,7 +4,7 @@ require_once '../src/Shsk/Autoloader.php';
 new Shsk\Autoloader();
 
 use Shsk\Sample\Creator;
-use Shsk\Color\RGB as Color;
+use Shsk\Image\Color as Color;
 
 function sample_005()
 {
