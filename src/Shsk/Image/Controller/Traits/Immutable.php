@@ -9,6 +9,7 @@ use Shsk\Image\Creator\TrueColor;
 use Shsk\Image\Color;
 use Shsk\Property\Size;
 use Shsk\Property\Coordinate;
+use Shsk\Coordinate\Calculator;
 
 trait Immutable
 {
@@ -83,5 +84,31 @@ trait Immutable
         }
 
         return $copy;
+    }
+
+    public function square(Size $resize = null): Controller
+    {
+        $screenSize = $this->size();
+        $trimSize = null;
+        if ($screenSize->width > $screenSize->height) {
+            $trimSize = new Size($screenSize->height, $screenSize->height);
+        } elseif ($screenSize->height > $screenSize->width) {
+            $trimSize = new Size($screenSize->width, $screenSize->width);
+        }
+
+        if ($trimSize !== null) {
+            $calc = new Calculator($screenSize, $trimSize);
+            $coord = $calc->center();
+            $ctrl = $this->trimming($trimSize, $coord);
+        } else {
+            $ctrl = $this->copy();
+        }
+        if ($resize instanceof Size) {
+            $resized = $this->resize(['width' => $resize->width, 'height' => $resize->height]);
+            $ctrl->destroy();
+            return $resized;
+        }
+
+        return $ctrl;
     }
 }

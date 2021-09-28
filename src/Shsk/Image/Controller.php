@@ -66,6 +66,13 @@ class Controller
         return imagettftext($this->im, $text->fontSize, $text->angle, $coord->x, $coord->y, $index, $text->fontPath, $text->text);
     }
 
+    public function save($filePath, $options = [])
+    {
+        $writer = $this->createWriter($filePath, $options);
+
+        return $writer->save();
+    }
+
     public function createWriter($filePath, $options = []): TypeInterface
     {
         $factory = new WriterFactory(null, $this->im, $options, $filePath);

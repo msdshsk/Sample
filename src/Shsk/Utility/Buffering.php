@@ -14,7 +14,7 @@ class Buffering
     {
         ob_start();
         $callback = $this->callback;
-        return $callback();
+        $callback();
         return ob_get_clean();
     }
 }
