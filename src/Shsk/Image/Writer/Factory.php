@@ -7,6 +7,7 @@ use Shsk\Image\Writer\Type\Gif;
 use Shsk\Image\Writer\Type\Jpg;
 use Shsk\Image\Writer\Type\Png;
 use Shsk\Image\Writer\Type\Webp;
+use Shsk\Image\Writer\Type\Svg;
 use Shsk\Exception\Exception;
 
 class Factory implements FactoryInterface
@@ -17,6 +18,7 @@ class Factory implements FactoryInterface
         'gif' => Gif::class,
         'webp' => Webp::class,
         'png' => Png::class,
+        'svg' => Svg::class,
     ];
     private $extension;
     private $resource;

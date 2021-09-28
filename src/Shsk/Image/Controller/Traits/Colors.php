@@ -21,4 +21,8 @@ trait Colors
         $index = imagecolorat($this->im, $x, $y);
         return Color::createFromIndex($index);
     }
+
+    public function convertRgb($index)
+    {
+    }
 }

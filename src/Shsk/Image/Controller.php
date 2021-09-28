@@ -87,7 +87,7 @@ class Controller
         return (new TrueColor($size->width, $size->height, $baseColor))->create();
     }
 
-    public static function createFromImage($filePath): Controller
+    public static function fromImage($filePath): Controller
     {
         return (new ReaderFactory(pathinfo($filePath, PATHINFO_EXTENSION)))->create()->create($filePath);
     }

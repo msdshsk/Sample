@@ -13,7 +13,7 @@ class Color extends ReadOnly
 
     public function toColorCode()
     {
-        return '#' . implode('', array_map(function ($code) {
+        return vsprintf('#%02s%02s%02s', array_map(function ($code) {
             return base_convert($code, 10, 16);
         }, [$this->red, $this->green, $this->blue]));
     }

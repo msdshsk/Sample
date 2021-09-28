@@ -44,7 +44,7 @@ class Creator
 
     public static function createFromImage(string $path)
     {
-        $ctrl = Controller::createFromImage($path);
+        $ctrl = Controller::fromImage($path);
         return new self($ctrl, false);
     }
 
