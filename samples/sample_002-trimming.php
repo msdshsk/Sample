@@ -17,13 +17,13 @@ function sample_002()
     // テキスト設定前に処理を追加する
     $creator->before(function ($controller) {
         // 指定した横幅にリサイズする
-        $resized = $controller->resize(['width' => 400]);
+        $resized = $controller->resize()->byWidth(400);
         // 切り取るサイズを設定
         $trimSize = new Size(400, 400);
         // 切り取る左上のXY座標を設定
         $trimPos = new Coordinate(0, 0);
         // トリミングする
-        return $resized->trimming($trimSize, $trimPos);
+        return $resized->trimming()->trim($trimSize, $trimPos);
     });
     // 処理実行
     $creator->execute();

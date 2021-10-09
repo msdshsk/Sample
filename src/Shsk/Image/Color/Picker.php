@@ -2,110 +2,31 @@
 
 namespace Shsk\Image\Color;
 
-use Shsk\Image\Reader\Factory as ReaderFactory;
 use Shsk\Image\Controller;
 use Shsk\Image\Color;
-use Shsk\Property\Size;
+use Shsk\Image\Text;
 use Shsk\Property\Coordinate;
-use Shsk\Image\Controller\Config\Resize as ResizeConfig;
-use Shsk\Exception\Exception;
 
-class Picker
+class Picker extends Color
 {
     const SAMPLE_WIDTH = 16;
     const COLOR_THRESHOLD = 127;
-    private $im;
-    private $imagePath;
-    private $controller;
-    private $textSize;
-    private $textCoord;
-    public function __construct($imagePath = null, Controller $ctrl = null)
+
+    public function __construct()
     {
-        $this->imagePath = $imagePath;
-        if ($ctrl instanceof Controller) {
-            $this->controller = $ctrl;
-            $this->imagePath = $imagePath;
-        } elseif ($imagePath !== null) {
-            $this->controller = $this->loadImage($this->imagePath);
-        } else {
-            new Exception("can't load imageFile or imageController");
-        }
+        parent::__construct(0, 0, 0, 0);
     }
 
-    public static function createFromController(Controller $ctrl)
+    public function pick(Controller $ctrl, Text $text, Coordinate $coord)
     {
-        return new self(null, $ctrl);
-    }
+        $box = $text->boundingBox();
+        $coord = new Coordinate($coord->x, $coord->y - $box->height);
+        $trimed = $ctrl->trimming()->trim($box->size(), $coord);
+        $resized = $trimed->resize()->byWidth(static::SAMPLE_WIDTH);
 
-    private function createSamplingImage()
-    {
-        $orgImg = $this->controller;
-        $trimImg = null;
-        
-        if ($this->textSize instanceof Size && $this->textCoord instanceof Coordinate) {
-            $trimImg = $orgImg->trimming($this->textSize, $this->textCoord);
-        }
+        $avgColor = $this->average($resized, false);
 
-        $config = new ResizeConfig(['width' => static::SAMPLE_WIDTH]);
-
-        if ($trimImg !== null) {
-            $resizedImg = $trimImg->resize($config);
-            $trimImg->destroy();
-        } else {
-            $resizedImg = $orgImg->resize($config);
-        }
-
-        return $resizedImg;
-    }
-
-    public function setTextSize(Size $size, Coordinate $coord)
-    {
-        $this->textSize = $size;
-
-        $x = $coord->x;
-        $y = $coord->y - $size->height;
-
-        $this->textCoord = new Coordinate($x, $y);
-    }
-
-    public function average(Controller $ctrl, $grayScale = true): Color
-    {
-        $copy = $ctrl->copy();
-        if ($grayScale === true) {
-            $copy->filter(IMG_FILTER_GRAYSCALE);
-        }
-
-        $height = $copy->height();
-        $width = $copy->width();
-        $max = $width * $height;
-        
-        $r = 0;
-        $g = 0;
-        $b = 0;
-        foreach (range(0, $width - 1) as $x) {
-            foreach (range(0, $height -1) as $y) {
-                $rgb = $copy->colorat($x, $y);
-                $r += $rgb->red;
-                $g += $rgb->green;
-                $b += $rgb->blue;
-            }
-        }
-        $rAvg = floor($r / $max);
-        $gAvg = floor($g / $max);
-        $bAvg = floor($b / $max);
-
-        $rgb = new Color($rAvg, $gAvg, $bAvg);
-        $copy->destroy();
-        return $rgb;
-    }
-    
-    public function createColor(): Color
-    {
-        $ctrl = $this->createSamplingImage();
-
-        $base = $this->average($ctrl, false);
-
-        $pick = floor(($base->red + $base->green + $base->blue) / 3);
+        $pick = floor(($avgColor->red + $avgColor->green + $avgColor->blue) / 3);
         if ($pick < static::COLOR_THRESHOLD) {
             $collection = range($pick + 1, 255);
             $up = 1;
@@ -124,29 +45,48 @@ class Picker
 
         foreach ($collection as $i) {
             $target = new Color(
-                $func($base->red, $i, $up),
-                $func($base->green, $i, $up),
-                $func($base->blue, $i, $up)
+                $func($avgColor->red, $i, $up),
+                $func($avgColor->green, $i, $up),
+                $func($avgColor->blue, $i, $up)
             );
-            if ($base->visibility($target)) {
+            if ($avgColor->visibility($target)) {
                 break;
             }
         }
 
+        $trimed->destroy();
+        $resized->destroy();
+
         return $target;
     }
 
-    protected function loadImage($imagePath): Controller
+    public function average(Controller $ctrl, $grayScale = true): Color
     {
-        $ext = pathinfo($imagePath, PATHINFO_EXTENSION);
-        $factory = new ReaderFactory($ext);
-        
-        $reader = $factory->create();
-        return $reader->create($imagePath);
-    }
+        $copy = $ctrl->copy();
+        if ($grayScale === true) {
+            $copy->filter(IMG_FILTER_GRAYSCALE);
+        }
 
-    public function __destruct()
-    {
-        $this->controller->destroy();
+        $height = $copy->height();
+        $width = $copy->width();
+        $max = $width * $height;
+        $r = 0;
+        $g = 0;
+        $b = 0;
+        foreach (range(0, $width - 1) as $x) {
+            foreach (range(0, $height -1) as $y) {
+                $rgb = $copy->colorat($x, $y);
+                $r += $rgb->red;
+                $g += $rgb->green;
+                $b += $rgb->blue;
+            }
+        }
+        $rAvg = floor($r / $max);
+        $gAvg = floor($g / $max);
+        $bAvg = floor($b / $max);
+
+        $rgb = new Color($rAvg, $gAvg, $bAvg);
+        $copy->destroy();
+        return $rgb;
     }
 }

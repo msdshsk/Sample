@@ -48,7 +48,7 @@ $creator->before(function ($controller) {
     // 切り取る左上のXY座標を設定
     $trimPos = new Coordinate(0, 0);
     // トリミングする
-    return $resized->trimming($trimSize, $trimPos);
+    return $resized->trimming()->trim($trimSize, $trimPos);
 });
 // 処理実行
 $creator->execute();

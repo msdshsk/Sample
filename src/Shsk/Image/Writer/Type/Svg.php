@@ -7,6 +7,9 @@ use Shsk\Image\Color;
 
 class Svg extends TypeAbstract
 {
+
+    protected $mime = 'image/svg+xml';
+
     public function saveAs($filePath)
     {
         return file_put_contents($filePath, $this->toSvg($filePath));
@@ -48,5 +51,13 @@ class Svg extends TypeAbstract
         $svg .= '</svg>';
 
         return $svg;
+    }
+
+    public function response()
+    {
+        $output = $this->output();
+        header('Content-Type: image/svg+xml');
+        header('Content-Length: ' . strlen($output));
+        echo $output();
     }
 }

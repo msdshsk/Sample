@@ -6,6 +6,8 @@ use Shsk\Utility\Buffering;
 
 class Png extends TypeAbstract
 {
+    protected $mime = 'image/png';
+
     public function saveAs($filePath)
     {
         $options = $this->getOptions();
@@ -28,5 +30,13 @@ class Png extends TypeAbstract
             $filters = $options['filters'] ?? -1;
             imagepng($this->getResource(), null, $quality, $filters);
         }))->output();
+    }
+
+    public function response()
+    {
+        $output = $this->output();
+        header('Content-Type: image/png');
+        header('Content-Length: ' . strlen($output));
+        echo $output();
     }
 }

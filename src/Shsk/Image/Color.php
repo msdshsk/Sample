@@ -4,6 +4,14 @@ namespace Shsk\Image;
 
 use Shsk\Property\ReadOnly;
 
+/**
+ * Undocumented class
+ * 
+ * @property int $red
+ * @property int $green
+ * @property int $blue
+ * @property int $alpha
+ */
 class Color extends ReadOnly
 {
     public function __construct(int $r, int $g, int $b, int $alpha = 0)

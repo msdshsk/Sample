@@ -28,4 +28,12 @@ class Webp extends TypeAbstract
             imagewebp($this->getResource(), null, $quality);
         }))->output();
     }
+
+    public function response()
+    {
+        $output = $this->output();
+        header('Content-Type: image/webp');
+        header('Content-Length: ' . strlen($output));
+        echo $output();
+    }
 }

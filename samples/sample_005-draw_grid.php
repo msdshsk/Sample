@@ -18,7 +18,7 @@ function sample_005()
     // テキスト設定前に処理を追加する
     $creator->before(function ($controller) {
         // 指定した横幅にリサイズする
-        $resized = $controller->resize(['width' => 600]);
+        $resized = $controller->resize()->byWidth(600);
 
         // 方眼を書き込む
         $resized->drawGrid(20, new Color(0, 0, 0));

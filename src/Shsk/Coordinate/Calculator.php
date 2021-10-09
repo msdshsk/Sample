@@ -12,6 +12,9 @@ class Calculator
     const RIGHT_TOP = 'rightTop';
     const LEFT_BOTTOM = 'leftBottom';
     const RIGHT_BOTTOM = 'rightBottom';
+    const BOTTOM_CENTER = 'bottomCenter';
+    const TOP_CENTER = 'topCenter';
+    const CENTER = 'center';
 
     protected $screen;
     protected $target;
@@ -122,11 +125,11 @@ class Calculator
                 return $this->rightBottom();
             case self::RIGHT_TOP:
                 return $this->rightTop();
-            case 'bottomCenter':
+            case self::BOTTOM_CENTER:
                 return $this->bottomCenter();
-            case 'topCenter':
+            case self::TOP_CENTER:
                 return $this->topCenter();
-            case 'center':
+            case self::CENTER:
                 return $this->center();
             default:
                 throw new Exception("can't execute");

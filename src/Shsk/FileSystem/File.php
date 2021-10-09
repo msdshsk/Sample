@@ -2,10 +2,41 @@
 
 namespace Shsk\FileSystem;
 
+use DateTimeImmutable;
 use SplFileInfo;
 
 class File extends SplFileInfo
 {
+    public function lastAccess()
+    {
+        $time = $this->getATime();
+        if ($time === false) {
+            $time = 0;
+        }
+
+        return (new DateTimeImmutable())->setTimestamp($time);
+    }
+
+    public function changed()
+    {
+        $time = $this->getCTime();
+        if ($time === false) {
+            $time = 0;
+        }
+
+        return (new DateTimeImmutable())->setTimestamp($time);
+    }
+
+    public function modified()
+    {
+        $time = $this->getMTime();
+        if ($time === false) {
+            $time = 0;
+        }
+
+        return (new DateTimeImmutable())->setTimestamp($time);
+    }
+
     public function put($data, $flags = 0)
     {
         if ($this->isWritable()) {

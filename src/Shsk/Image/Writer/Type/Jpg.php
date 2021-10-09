@@ -6,6 +6,8 @@ use Shsk\Utility\Buffering;
 
 class Jpg extends TypeAbstract
 {
+    protected $mime = 'image/jpeg';
+
     public function saveAs($filePath)
     {
         $options = $this->getOptions();
@@ -27,5 +29,13 @@ class Jpg extends TypeAbstract
             $quality = $options['quality'] ?? -1;
             imagejpeg($this->getResource(), null, $quality);
         }))->output();
+    }
+
+    public function response()
+    {
+        $output = $this->output();
+        header('Content-Type: image/jpeg');
+        header('Content-Length: ' . strlen($output));
+        echo $output();
     }
 }

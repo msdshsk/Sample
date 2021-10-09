@@ -2,40 +2,25 @@
 
 namespace Shsk\Image\Controller\Traits;
 
-use Shsk\Image\Controller\Config\Resize as ResizeConfig;
-use Shsk\Image\Controller\Config\Trimming;
-use Shsk\Image\Controller;
 use Shsk\Image\Creator\TrueColor;
 use Shsk\Image\Color;
 use Shsk\Property\Size;
 use Shsk\Property\Coordinate;
-use Shsk\Coordinate\Calculator;
+use Shsk\Image\Controller;
 
 trait Immutable
 {
-    public function copy(): Controller
+    public function copy(Size $size = null): Controller
     {
-        $org = $this->getResource();
-        $width = $this->width();
-        $height = $this->height();
-        $cpy = imagecreatetruecolor($width, $height);
-        imagecopy($cpy, $org, 0, 0, 0, 0, $width, $height);
-
-        return new self($cpy, $this->filePath);
-    }
-
-    public function resize(ResizeConfig|array $config, $destroy = false): Controller
-    {
-        $height = $this->height();
-        $width = $this->width();
-
-        if (is_array($config)) {
-            $config = new ResizeConfig($config);
+        if ($size instanceof Size) {
+            $width = $size->width;
+            $height = $size->height;
+        } else {
+            $width = $this->width();
+            $height = $this->height();
         }
 
-        $new_size = $config->calc(new Size($width, $height));
-
-        $copy = (new TrueColor($new_size->width, $new_size->height))->create();
+        $copy = (new TrueColor($width, $height))->create();
 
         $trans_index = $this->transparent();
         if ($trans_index !== -1) {
@@ -44,71 +29,40 @@ trait Immutable
             $copy->fill(0, 0, $trans_color);
         }
 
-        $im_cpy = $copy->getResource();
-        $im_src = $this->getResource();
+        imagecopy($copy->getResource(), $this->getResource(), 0, 0, 0, 0, $width, $height);
 
-        imagealphablending($im_cpy, true);
-        imagesavealpha($im_cpy, true);
-        imagecopyresampled($im_cpy, $im_src, 0, 0, 0, 0, $new_size->width, $new_size->height, $width, $height);
-
-        if ($destroy === true) {
-            $this->destroy();
-        }
-
-        return $copy;
+        return new self($copy->getResource(), $this->path());
     }
 
-    public function trimming(Size $size, Coordinate $coord, $destroy = false): Controller
+    public function resample(Size $copySize, Coordinate $copyCoord, Size $orgSize, Coordinate $orgCoord)
     {
-        $copy = (new TrueColor($size->width, $size->height))->create();
-        $im_cpy = $copy->getResource();
-        $im_src = $this->getResource();
+        $copy = $this->copy($copySize);
 
-        imagealphablending($im_cpy, true);
-        imagesavealpha($im_cpy, true);
+        imagealphablending($copy->getResource(), true);
+        imagesavealpha($copy->getResource(), true);
         imagecopyresampled(
-            $im_cpy,
-            $im_src,
-            0,
-            0,
-            $coord->x,
-            $coord->y,
-            $size->width,
-            $size->height,
-            $size->width,
-            $size->height
+            $copy->getResource(),
+            $this->getResource(),
+            $copyCoord->x,
+            $copyCoord->y,
+            $orgCoord->x,
+            $orgCoord->y,
+            $copySize->width,
+            $copySize->height,
+            $orgSize->width,
+            $orgSize->height
         );
 
-        if ($destroy === true) {
-            $this->destroy();
-        }
-
         return $copy;
     }
 
-    public function square(Size $resize = null): Controller
+    public function resize(): Controller\Resize
     {
-        $screenSize = $this->size();
-        $trimSize = null;
-        if ($screenSize->width > $screenSize->height) {
-            $trimSize = new Size($screenSize->height, $screenSize->height);
-        } elseif ($screenSize->height > $screenSize->width) {
-            $trimSize = new Size($screenSize->width, $screenSize->width);
-        }
+        return new Controller\Resize($this);
+    }
 
-        if ($trimSize !== null) {
-            $calc = new Calculator($screenSize, $trimSize);
-            $coord = $calc->center();
-            $ctrl = $this->trimming($trimSize, $coord);
-        } else {
-            $ctrl = $this->copy();
-        }
-        if ($resize instanceof Size) {
-            $resized = $this->resize(['width' => $resize->width, 'height' => $resize->height]);
-            $ctrl->destroy();
-            return $resized;
-        }
-
-        return $ctrl;
+    public function trimming(): Controller\Trimming
+    {
+        return new Controller\Trimming($this);
     }
 }

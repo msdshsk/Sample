@@ -20,6 +20,12 @@ class Factory implements FactoryInterface
         'webp' => Webp::class,
         'png' => Png::class,
         'svg' => Svg::class,
+
+        'image/jpeg' => Jpg::class,
+        'image/gif' => Gif::class,
+        'image/webp' => Webp::class,
+        'image/png' => Png::class,
+        'image/svg+xml' => Svg::class,
     ];
     private $extension;
     private $resource;

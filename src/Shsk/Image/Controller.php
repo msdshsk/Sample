@@ -2,23 +2,15 @@
 
 namespace Shsk\Image;
 
-use Shsk\Image\Color;
-use Shsk\Image\Text;
-use Shsk\Property\Coordinate;
-use Shsk\Image\Writer\Factory as WriterFactory;
-use Shsk\Image\Reader\Factory as ReaderFactory;
-use Shsk\Image\Writer\Type\TypeInterface;
-use Shsk\Property\Size;
-use Shsk\Image\Controller\Config\Resize as ResizeConfig;
-use Shsk\Image\Controller\Config\Trimming as TrimConfig;
-use Shsk\Image\Creator\TrueColor;
 use Shsk\Image\Controller\Traits;
+use Shsk\Property\Size;
 
 class Controller
 {
-    use Traits\Colors;
     use Traits\Draw;
     use Traits\Immutable;
+    use Traits\Text;
+    use Traits\IO;
 
     private $im;
     private $filePath;
@@ -60,23 +52,25 @@ class Controller
         return imagefilter($this->im, $filter);
     }
 
-    public function writeText(Text $text, Coordinate $coord, Color $color)
+    public function allocate(Color $color)
     {
-        $index = $this->allocate($color);
-        return imagettftext($this->im, $text->fontSize, $text->angle, $coord->x, $coord->y, $index, $text->fontPath, $text->text);
+        return imagecolorallocatealpha($this->im, $color->red, $color->green, $color->blue, $color->alpha);
     }
 
-    public function save($filePath, $options = [])
+    public function transparent(Color $color = null): int
     {
-        $writer = $this->createWriter($filePath, $options);
-
-        return $writer->save();
+        return imagecolortransparent($this->im, $color ? $color->toIndex() : null);
     }
 
-    public function createWriter($filePath, $options = []): TypeInterface
+    public function colorat($x, $y)
     {
-        $factory = new WriterFactory(null, $this->im, $options, $filePath);
-        return $factory->create();
+        $index = imagecolorat($this->im, $x, $y);
+        return Color::createFromIndex($index);
+    }
+
+    public function text(Text $text)
+    {
+        return new Controller\Text($this, $text);
     }
 
     public function destroy()
@@ -87,15 +81,5 @@ class Controller
     public function getResource()
     {
         return $this->im;
-    }
-
-    public static function create(Size $size, Color $baseColor = null): Controller
-    {
-        return (new TrueColor($size->width, $size->height, $baseColor))->create();
-    }
-
-    public static function fromImage($filePath): Controller
-    {
-        return (new ReaderFactory(pathinfo($filePath, PATHINFO_EXTENSION)))->create()->create($filePath);
     }
 }

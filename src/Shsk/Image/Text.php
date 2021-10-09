@@ -3,7 +3,10 @@
 namespace Shsk\Image;
 
 use Shsk\Property\ReadOnly;
+use Shsk\Property\Size;
+use Shsk\Property\Coordinate;
 use Shsk\Image\Text\BoundingBox;
+use SHsk\Image\Text\Coordinator;
 
 class Text extends ReadOnly
 {
@@ -37,30 +40,40 @@ class Text extends ReadOnly
         return new self($this->text, $this->fontSize, $this->fontPath, $angle);
     }
 
+    public function coordinate($position, Size $screenSize, int $spacing = 0, int $lineheight = 0)
+    {
+        $calc = new Coordinator($this->boundingBox(), $screenSize->expandPixcel((-1) * $spacing, (-1) * $lineheight));
+
+        if ($position instanceof Coordinate) {
+            return $calc->fromCoordinate($position);
+        }
+        return $calc->fromString($position);
+    }
+
     public function boundingBox(): BoundingBox
     {
         $result = imagettfbbox($this->fontSize, $this->angle, $this->fontPath, $this->text);
         return new BoundingBox($result);
     }
 
-    public function fit($width, $height): Text
+    public function fit(Size $size): Text
     {
         $box = $this->boundingBox();
         $fontSize = $this->fontSize;
-
-        if ($box->width < $width && $box->height < $height) {
+        
+        if ($box->width < $size->width && $box->height < $size->height) {
             $increment = 1;
         } else {
             $increment = -1;
         }
 
-        $candidate = $box;
+        $candidate = $this;
         $loop = true;
         do {
             $text = $this->withFontSize($fontSize);
             $box = $text->boundingBox();
 
-            $isOver = $box->width < $width && $box->height < $height;
+            $isOver = $box->width < $size->width && $box->height < $size->height;
             if ($isOver && $increment === 1) {
                 $candidate = $text;
             } elseif (!$isOver && $increment === -1) {
@@ -68,7 +81,6 @@ class Text extends ReadOnly
             } else {
                 $loop = false;
             }
-
             $fontSize += $increment;
         } while ($loop);
 

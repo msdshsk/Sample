@@ -17,7 +17,7 @@ function sample_006()
     // テキスト設定前に処理を追加する
     $creator->before(function ($controller) {
         // 正方形にする
-        $squared = $controller->square();
+        $squared = $controller->trimming()->square();
 
         return $squared;
     });

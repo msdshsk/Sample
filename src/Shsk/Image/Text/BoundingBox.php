@@ -77,7 +77,7 @@ class BoundingBox extends Size
         ];
     }
 
-    public function coordinator(int|Size $width = null, int $height = null): Coordinator
+    public function coordinator($width = null, $height = null): Coordinator
     {
         return new Coordinator($this, $width, $height);
     }

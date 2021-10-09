@@ -17,7 +17,7 @@ function sample_003()
     // テキスト設定前に処理を追加する
     $creator->before(function ($controller) {
         // 指定した横幅にリサイズする
-        return $controller->resize(['width' => 300]);
+        return $controller->resize()->byWidth(300);
     });
     // 処理実行
     $creator->execute();

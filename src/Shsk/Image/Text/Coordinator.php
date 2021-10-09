@@ -10,10 +10,12 @@ use Shsk\Exception\Exception;
 
 class Coordinator extends Calculator
 {
-    public function __construct(BoundingBox $target, int|ScreenSize $width = null, int $height = null)
+    public function __construct(BoundingBox $target, $width = null, $height = null)
     {
         if (!($width instanceof ScreenSize)) {
             $screen = new ScreenSize($width, $height);
+        } else {
+            $screen = $width;
         }
         parent::__construct($screen, $target);
         $this->changeReturnCoordinate(self::LEFT_BOTTOM);

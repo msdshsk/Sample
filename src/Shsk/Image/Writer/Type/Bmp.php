@@ -6,6 +6,8 @@ use Shsk\Utility\Buffering;
 
 class Bmp extends TypeAbstract
 {
+    protected $mime = 'image/bmp';
+
     public function saveAs($filePath)
     {
         $options = $this->getOptions();
@@ -25,5 +27,13 @@ class Bmp extends TypeAbstract
             $compressed = $options['compressed'] ?? true;
             return imagebmp($this->getResource(), null, $compressed);
         }))->output();
+    }
+
+    public function response()
+    {
+        $output = $this->output();
+        header('Content-Type: image/bmp');
+        header('Content-Length: ' . strlen($output));
+        echo $output();
     }
 }

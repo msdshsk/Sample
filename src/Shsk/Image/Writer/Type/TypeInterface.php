@@ -7,4 +7,6 @@ interface TypeInterface
     public function saveAs(string $filePath);
     public function save();
     public function output();
+    public function response();
+    public function encode();
 }

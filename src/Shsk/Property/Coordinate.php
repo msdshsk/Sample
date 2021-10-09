@@ -2,6 +2,9 @@
 
 namespace Shsk\Property;
 
+use Shsk\Coordinate\Calculator;
+use Shsk\Coordinate\Calulator;
+
 class Coordinate extends ReadOnly
 {
     public function __construct($x, $y)
@@ -19,15 +22,12 @@ class Coordinate extends ReadOnly
         return $this->x < $this->y ? $this->x : $this->y;
     }
 
-    public function ajast(int|Coordinate $x, int $y = null)
+    public function ajast(int $width, int $height)
     {
-        if ($x instanceof Coordinate) {
-            $ajast_x = $this->x + $x->x;
-            $ajast_y = $this->y + $x->y;
-        } else {
-            $ajast_x = $this->x + $x;
-            $ajast_y = $this->y + $y;
-        }
+        
+        $ajast_x = $this->x + $width;
+        $ajast_y = $this->y + $height;
+
         return new self($ajast_x, $ajast_y);
     }
 }
