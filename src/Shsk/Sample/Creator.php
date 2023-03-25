@@ -22,6 +22,9 @@ class Creator
     private $imageSizeTextPosition = 'leftTop';
     private $imageSizeText;
     private $imageSizeTextSize;
+    private $imageSizePosition;
+    private $controller;
+    private $backgroundColor;
 
     private function __construct(Controller $ctrl)
     {
