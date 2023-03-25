@@ -5,6 +5,7 @@ namespace Shsk\FileSystem\Directory;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Shsk\FileSystem\Directory;
+use Shsk\FileSystem\File;
 
 class SearchFileIterator extends RecursiveIteratorIterator
 {
@@ -12,7 +13,7 @@ class SearchFileIterator extends RecursiveIteratorIterator
     private $deep;
     private $currentDepth;
     private $currentDir;
-    public function __construct($dir, string|callable $keyword = null, bool $deep = true)
+    public function __construct(string $dir, $keyword = null, bool $deep = true)
     {
         $this->keyword = $keyword;
         $this->deep = $deep;
@@ -25,7 +26,15 @@ class SearchFileIterator extends RecursiveIteratorIterator
         parent::__construct(new RecursiveDirectoryIterator($dir));
     }
 
-    public function next()
+    public function current()
+    {
+        $spl = parent::current();
+        $spl->setInfoClass(FIle::class);
+
+        return $spl->getFileInfo();
+    }
+
+    public function next(): void
     {
         parent::next();
         if (!parent::valid()) {
@@ -39,7 +48,7 @@ class SearchFileIterator extends RecursiveIteratorIterator
         }
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         parent::rewind();
         if (!parent::valid()) {

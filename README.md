@@ -48,7 +48,7 @@ $creator->before(function ($controller) {
     // 切り取る左上のXY座標を設定
     $trimPos = new Coordinate(0, 0);
     // トリミングする
-    return $resized->trimming($trimSize, $trimPos);
+    return $resized->trimming()->trim($trimSize, $trimPos);
 });
 // 処理実行
 $creator->execute();
@@ -119,7 +119,7 @@ $creator->save('results/sample004-size_text/sample_004.png', true);
 
 ```php
 use Shsk\Sample\Creator;
-use Shsk\Color\RGB as Color;
+use Shsk\Image\Color as Color;
 // 画像を読み込む
 $creator = Creator::createFromImage('src/ishinageport_TP_V4.jpg');
 // テキストを設定（フォントサイズは自動的に決定されるので設定をしない）

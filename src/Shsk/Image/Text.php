@@ -2,11 +2,13 @@
 
 namespace Shsk\Image;
 
-use Shsk\Color\RGB as Color;
-use Shsk\BoundingBox\Font;
-use Shsk\Property\ReadOnly;
+use Shsk\Property\ReadOnlyProperty;
+use Shsk\Property\Size;
+use Shsk\Property\Coordinate;
+use Shsk\Image\Text\BoundingBox;
+use Shsk\Image\Text\Coordinator;
 
-class Text extends ReadOnly
+class Text extends ReadOnlyProperty
 {
     public function __construct($text, $fontSize, $fontPath, $angle = 0)
     {
@@ -18,23 +20,70 @@ class Text extends ReadOnly
         ]);
     }
 
-    public function changeText($text)
+    public function withText($text)
     {
         return new self($text, $this->fontSize, $this->fontPath, $this->angle);
     }
 
-    public function changeFontSize($fontSize)
+    public function withFontSize($fontSize)
     {
         return new self($this->text, $fontSize, $this->fontPath, $this->angle);
     }
 
-    public function changeFontPath($fontPath)
+    public function withFontPath($fontPath)
     {
         return new self($this->text, $this->fontSize, $fontPath, $this->angle);
     }
 
-    public function changeAngle($angle)
+    public function withAngle($angle)
     {
         return new self($this->text, $this->fontSize, $this->fontPath, $angle);
+    }
+
+    public function coordinate($position, Size $screenSize, int $spacing = 0, int $lineheight = 0)
+    {
+        $calc = new Coordinator($this->boundingBox(), $screenSize->expandPixcel((-1) * $spacing, (-1) * $lineheight));
+
+        if ($position instanceof Coordinate) {
+            return $calc->fromCoordinate($position);
+        }
+        return $calc->fromString($position);
+    }
+
+    public function boundingBox(): BoundingBox
+    {
+        $result = imagettfbbox($this->fontSize, $this->angle, $this->fontPath, $this->text);
+        return new BoundingBox($result);
+    }
+
+    public function fit(Size $size): Text
+    {
+        $box = $this->boundingBox();
+        $fontSize = $this->fontSize;
+        
+        if ($box->width < $size->width && $box->height < $size->height) {
+            $increment = 1;
+        } else {
+            $increment = -1;
+        }
+
+        $candidate = $this;
+        $loop = true;
+        do {
+            $text = $this->withFontSize($fontSize);
+            $box = $text->boundingBox();
+
+            $isOver = $box->width < $size->width && $box->height < $size->height;
+            if ($isOver && $increment === 1) {
+                $candidate = $text;
+            } elseif (!$isOver && $increment === -1) {
+                $candidate = $text;
+            } else {
+                $loop = false;
+            }
+            $fontSize += $increment;
+        } while ($loop);
+
+        return $candidate;
     }
 }

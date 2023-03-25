@@ -3,10 +3,10 @@
 namespace Shsk\Image\Controller\Config;
 
 use Shsk\Property\Size;
-use Shsk\Property\ReadOnly;
+use Shsk\Property\ReadOnlyProperty;
 use Shsk\Exception\Exception;
 
-class Resize extends ReadOnly
+class Resize extends ReadOnlyProperty
 {
     public function __construct($ary)
     {
