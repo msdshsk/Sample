@@ -3,11 +3,11 @@
 namespace Shsk\Image\Controller\Config;
 
 use Shsk\Property\Size;
-use Shsk\Property\ReadOnly;
+use Shsk\Property\ReadOnlyProperty;
 use Shsk\Exception\Exception;
 use Shsk\Property\Coordinate;
 
-class Trimming extends ReadOnly
+class Trimming extends ReadOnlyProperty
 {
     public function __construct($ary)
     {

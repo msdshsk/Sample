@@ -2,17 +2,17 @@
 
 namespace Shsk\Image;
 
-use Shsk\Property\ReadOnly;
+use Shsk\Property\ReadOnlyProperty;
 
 /**
  * Undocumented class
- * 
+ *
  * @property int $red
  * @property int $green
  * @property int $blue
  * @property int $alpha
  */
-class Color extends ReadOnly
+class Color extends ReadOnlyProperty
 {
     public function __construct(int $r, int $g, int $b, int $alpha = 0)
     {

@@ -2,7 +2,7 @@
 
 namespace Shsk\Property;
 
-class Size extends ReadOnly
+class Size extends ReadOnlyProperty
 {
     public function __construct(int $width, int $height)
     {

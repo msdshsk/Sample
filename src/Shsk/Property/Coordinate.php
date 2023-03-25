@@ -5,7 +5,7 @@ namespace Shsk\Property;
 use Shsk\Coordinate\Calculator;
 use Shsk\Coordinate\Calulator;
 
-class Coordinate extends ReadOnly
+class Coordinate extends ReadOnlyProperty
 {
     public function __construct($x, $y)
     {
@@ -24,7 +24,6 @@ class Coordinate extends ReadOnly
 
     public function ajast(int $width, int $height)
     {
-        
         $ajast_x = $this->x + $width;
         $ajast_y = $this->y + $height;
 

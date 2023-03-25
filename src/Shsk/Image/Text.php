@@ -2,13 +2,13 @@
 
 namespace Shsk\Image;
 
-use Shsk\Property\ReadOnly;
+use Shsk\Property\ReadOnlyProperty;
 use Shsk\Property\Size;
 use Shsk\Property\Coordinate;
 use Shsk\Image\Text\BoundingBox;
-use SHsk\Image\Text\Coordinator;
+use Shsk\Image\Text\Coordinator;
 
-class Text extends ReadOnly
+class Text extends ReadOnlyProperty
 {
     public function __construct($text, $fontSize, $fontPath, $angle = 0)
     {

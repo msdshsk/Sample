@@ -84,7 +84,7 @@ class Calculator
     {
         $widthS = $this->screen->width - 1 - ($this->target->width);
         $x = ($widthS / 2);
-        $y = $this->height - $this->target->height;
+        $y = $this->screen->height - $this->target->height;
 
         return $this->returnCoordinate($x, $y);
     }

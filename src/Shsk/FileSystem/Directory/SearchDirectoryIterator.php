@@ -25,7 +25,7 @@ class SearchDirectoryIterator extends RecursiveIteratorIterator
         parent::__construct(new RecursiveDirectoryIterator($this->currentDir));
     }
 
-    public function next()
+    public function next(): void
     {
         parent::next();
         if (!parent::valid()) {
@@ -39,7 +39,7 @@ class SearchDirectoryIterator extends RecursiveIteratorIterator
         }
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         parent::rewind();
         if (!parent::valid()) {

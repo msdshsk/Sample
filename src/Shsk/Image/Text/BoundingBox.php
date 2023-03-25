@@ -4,7 +4,7 @@ namespace Shsk\Image\Text;
 
 use Shsk\Property\Size;
 use Shsk\Property\Coordinate;
-use Shsk\Property\ReadOnly;
+use Shsk\Property\ReadOnlyProperty;
 
 class BoundingBox extends Size
 {
@@ -28,8 +28,8 @@ class BoundingBox extends Size
         $lfbm = new Coordinate($lfbmx, $lfbmy);
         $rttp = new Coordinate($rttpx, $rttpy);
         $rtbm = new Coordinate($rtbmx, $rtbmy);
-        $lf = new ReadOnly(['top' => $lftp, 'bottom' => $lfbm]);
-        $rt = new ReadOnly(['top' => $rttp, 'bottom' => $rtbm]);
+        $lf = new ReadOnlyProperty(['top' => $lftp, 'bottom' => $lfbm]);
+        $rt = new ReadOnlyProperty(['top' => $rttp, 'bottom' => $rtbm]);
 
         if ($lfbmy < $rtbmy) {
             $max_y = $rtbmy;

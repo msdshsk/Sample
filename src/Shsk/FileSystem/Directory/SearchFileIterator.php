@@ -34,7 +34,7 @@ class SearchFileIterator extends RecursiveIteratorIterator
         return $spl->getFileInfo();
     }
 
-    public function next()
+    public function next(): void
     {
         parent::next();
         if (!parent::valid()) {
@@ -48,7 +48,7 @@ class SearchFileIterator extends RecursiveIteratorIterator
         }
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         parent::rewind();
         if (!parent::valid()) {

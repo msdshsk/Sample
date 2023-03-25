@@ -82,4 +82,17 @@ class Controller
     {
         return $this->im;
     }
+
+    public function setResource($im)
+    {
+        if ($this->isResource($im)) {
+            $this->destroy();
+            $this->im = $im;
+        }
+    }
+
+    protected function isResource($im)
+    {
+        return is_resource($im) && ($im instanceof \GdImage || get_resource_type($im) === 'gd');
+    }
 }
